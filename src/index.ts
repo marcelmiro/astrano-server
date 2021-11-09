@@ -21,7 +21,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use((req, res, next) => {
-    logger.info(`${req.method}: ${req.originalUrl}`)
+    logger.info(`${req.method} ${req.originalUrl}`)
     next()
 })
 
@@ -31,7 +31,11 @@ config()
         app.use(catchErrorRoute)
         app.use(catchAllRoute)
         app.listen(PORT, () => {
-            logger.info(`Server running at: http://localhost:${PORT}/`)
+            const message =
+                process.env.NODE_ENV === 'production'
+                    ? `Server running at port: ${PORT}`
+                    : `Server running at: http://localhost:${PORT}/`
+            logger.info(message)
         })
     })
     .catch((e) => {
