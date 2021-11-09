@@ -15,10 +15,12 @@ export async function findProjects(
         {
             $lookup: {
                 from: 'users',
-                localField: 'user',
-                foreignField: '_id',
                 as: 'user',
-                pipeline: [{ $project: { _id: 0, username: 1, avatar: 1 } }],
+                let: { user: '$user' },
+                pipeline: [
+                    { $match: { $expr: { $eq: ['$$user', '$_id'] } } },
+                    { $project: { _id: 0, username: 1, avatar: 1 } },
+                ],
             },
         },
         {

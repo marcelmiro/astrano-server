@@ -46,7 +46,7 @@ const catchAllRoute: ErrorRequestHandler = (err, req, res, next) => {
     }
 
     logger.error(err)
-    const error = { message: err.message || 'An unexpected error occurred' }
+    const error = { message: 'An unexpected error occurred' }
     return res.status(err.status || err.statusCode || 500).json(error)
 }
 
