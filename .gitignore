@@ -3,6 +3,10 @@
 .VSCodeCounter
 bin
 bin/**
+dist
+dist/**
+build
+build/**
 
 # Created by https://www.toptal.com/developers/gitignore/api/windows,node,git,sass,visualstudio,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,node,git,sass,visualstudio,visualstudiocode

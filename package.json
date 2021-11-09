@@ -4,6 +4,8 @@
     "description": "",
     "main": "dist/index.js",
     "scripts": {
+        "start": "node dist/index.js",
+        "build": "tsc && rm -v -rf src",
         "dev": "nodemon -x npx ts-node src/index.ts",
         "dev-trace-sync": "set NODE_OPTIONS=--trace-sync-io && nodemon -x npx ts-node src/index.ts",
         "lint": "npx eslint . --ext .ts",
