@@ -6,7 +6,7 @@ const mailUri = process.env.MAIL_URI
 if (!mailUri) throw new Error('MAIL_URI environmental variable not found')
 const fromAddress = process.env.MAIL_FROM_ADDRESS || 'noreply@astrano.io'
 
-export const viewsDir = process.cwd() + '/src/views/'
+export const viewsDir = process.cwd() + '/views/'
 
 export const defaultOptions: SendMailOptions = {
     from: fromAddress,
