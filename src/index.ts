@@ -1,6 +1,5 @@
 import 'dotenv/config'
 import express from 'express'
-import compression from 'compression'
 import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -14,7 +13,6 @@ import { catchErrorRoute, catchAllRoute } from './middleware/index.middleware'
 const app = express()
 const PORT: number = +(process.env.PORT || 8080)
 
-app.use(compression())
 app.use(helmet())
 app.use(cors(corsOptions))
 app.use(express.json())
