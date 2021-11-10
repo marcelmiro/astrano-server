@@ -6,10 +6,10 @@ DIR="/home/ec2-user/astrano-server"
 sudo chmod -R 777 ${DIR}
 cd ${DIR}
 
-#add npm and node to path
-# export NVM_DIR="$HOME/.nvm"	
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # loads nvm	
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # loads nvm bash_completion (node is in path now)
+# Add node to startup 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Install npm packages
 npm i
