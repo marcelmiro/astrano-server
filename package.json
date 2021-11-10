@@ -8,8 +8,8 @@
         "build": "tsc",
         "dev": "nodemon -x npx ts-node src/index.ts",
         "dev-trace-sync": "set NODE_OPTIONS=--trace-sync-io && nodemon -x npx ts-node src/index.ts",
-        "lint": "npx eslint . --ext .ts",
-        "test": "npx snyk test"
+        "lint": "eslint . --ext .ts",
+        "test": "snyk test"
     },
     "author": "Marcel Miro",
     "license": "MIT",
@@ -30,7 +30,7 @@
         "mongoose": "^6.0.12",
         "nanoid": "^3.1.30",
         "nodemailer": "^6.7.0",
-        "pino": "^7.1.0",
+        "pino": "^7.2.0",
         "pino-pretty": "^7.2.0",
         "slugify": "^1.6.2",
         "ua-parser-js": "^1.0.2",
