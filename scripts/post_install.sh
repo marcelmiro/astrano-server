@@ -7,9 +7,15 @@ sudo chmod -R 777 ${DIR}
 cd ${DIR}
 
 #add npm and node to path
-export NVM_DIR="$HOME/.nvm"	
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # loads nvm	
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # loads nvm bash_completion (node is in path now)
+# export NVM_DIR="$HOME/.nvm"	
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # loads nvm	
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # loads nvm bash_completion (node is in path now)
+
+# Add node to startup
+hasRc=`grep "su -l $USER" /etc/rc.d/rc.local | cat`
+if [ -z "$hasRc" ]; then
+    sudo sh -c "echo 'su -l $USER -c \"cd ~/node;sh ./run.sh\"' >> /etc/rc.d/rc.local"
+fi
 
 # Install npm packages
 npm i
