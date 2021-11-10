@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ec2-user/astrano-api
+    destination: /home/ec2-user/astrano-server
 
 permissions:
   - object: /home/ec2-user

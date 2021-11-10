@@ -2,7 +2,7 @@
 set -e
 
 # Give permission to files in working direcory and move to working directory
-DIR="/home/ec2-user/astrano-api"
+DIR="/home/ec2-user/astrano-server"
 sudo chmod -R 777 ${DIR}
 cd ${DIR}
 

@@ -14,7 +14,7 @@ npm i -g typescript pm2
 pm2 updatePM2
 
 # Create working directory if not exists
-DIR="/home/ec2-user/astrano-api"
+DIR="/home/ec2-user/astrano-server"
 if [ ! -d "$DIR" ]; then
   mkdir ${DIR}
 fi
