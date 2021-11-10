@@ -11,7 +11,7 @@ nvm install node
 
 # Install global npm required packages
 npm i -g typescript pm2
-sudo pm2 udpate
+pm2 updatePM2
 
 # Create working directory if not exists
 DIR="/home/ec2-user/astrano-api"
