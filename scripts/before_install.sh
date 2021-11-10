@@ -9,6 +9,12 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
 . ~/.nvm/nvm.sh
 nvm install node
 
+# Add node to startup
+hasRc=`grep "su -l $USER" /etc/rc.d/rc.local | cat`
+if [ -z "$hasRc" ]; then
+    sudo sh -c "echo 'su -l $USER -c \"cd ~/node;sh ./run.sh\"' >> /etc/rc.d/rc.local"
+fi
+
 # Install global npm required packages
 npm i -g typescript pm2
 pm2 updatePM2
