@@ -37,8 +37,6 @@ import { getProjects, getProject } from './controllers/project.controller'
 
 const router = Router()
 
-router.get('/', (req, res) => res.status(200).json({ message: 'health check' }))
-
 router.post(
     '/auth/signup',
     validateResource(createUserSchema),

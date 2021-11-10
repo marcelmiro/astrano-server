@@ -11,6 +11,7 @@ const geolocationApi = (ip: string) => 'https://geolocation-db.com/json/' + ip
 
 const getIpAddress = (req: Request): string => {
     const ip =
+        req.headers['x-real-ip'] ||
         req.headers['x-forwarded-for'] ||
         req.socket.remoteAddress ||
         req.connection?.remoteAddress ||
