@@ -12,7 +12,7 @@ export const cookieDefaults: CookieOptions = {
     // sameSite: true,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    domain: originUrl.replace(/^https?:\/\//, '').replace(/:\d+/, '')
+    domain: 'localhost' // originUrl.replace(/^https?:\/\//, '').replace(/:\d+/, '')
 }
 
 const ignoreMethods = ['HEAD', 'OPTIONS']
