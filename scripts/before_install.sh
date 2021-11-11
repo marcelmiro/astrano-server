@@ -16,7 +16,7 @@ export NVM_DIR="$HOME/.nvm"
 
 # Install global npm required packages
 npm i -g typescript pm2
-pm2 update
+pm2 updatePM2
 
 # Create working directory if not exists
 DIR="/home/ec2-user/astrano-server"
