@@ -14,7 +14,7 @@ const app = express()
 const PORT: number = +(process.env.PORT || 8080)
 
 app.use(helmet())
-app.use(cors(corsOptions))
+// app.use(cors(corsOptions))
 app.use(express.json())
 app.use(cookieParser())
 
