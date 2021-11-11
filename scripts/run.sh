@@ -14,4 +14,4 @@ fi
 cd /home/ec2-user/astrano-server
 
 # Start pm2 process
-pm2 start dist/index.js -n api -i 0
+pm2 start dist/index.js -n server -i 0
