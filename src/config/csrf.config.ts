@@ -11,7 +11,7 @@ export const csrfTokenCookie = process.env.CSRF_TOKEN_COOKIE
 export const cookieDefaults: CookieOptions = {
     // sameSite: true,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true, // process.env.NODE_ENV === 'production',
     domain: 'localhost' // originUrl.replace(/^https?:\/\//, '').replace(/:\d+/, '')
 }
 
