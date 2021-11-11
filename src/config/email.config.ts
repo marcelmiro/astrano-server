@@ -1,4 +1,5 @@
 import { createTransport, SendMailOptions } from 'nodemailer'
+import { join as pathJoin } from 'path'
 
 import logger from '../utils/logger'
 
@@ -6,7 +7,7 @@ const mailUri = process.env.MAIL_URI
 if (!mailUri) throw new Error('MAIL_URI environmental variable not found')
 const fromAddress = process.env.MAIL_FROM_ADDRESS || 'noreply@astrano.io'
 
-export const viewsDir = process.cwd() + '/views/'
+export const viewsDir = pathJoin(__dirname, '../../views/')
 
 export const defaultOptions: SendMailOptions = {
     from: fromAddress,
