@@ -19,24 +19,30 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use((req, res, next) => {
-    logger.info(`${req.method} ${req.originalUrl}`)
-    next()
+	logger.info(`${req.method} ${req.originalUrl}`)
+	res.header('Content-Type', 'application/json;charset=UTF-8')
+	res.header('Access-Control-Allow-Credentials', 'true')
+	res.header(
+		'Access-Control-Allow-Headers',
+		'Origin, X-Requested-With, Content-Type, Accept'
+	)
+	next()
 })
 
 config()
-    .then(() => {
-        app.use('/api', routes)
-        app.use(catchErrorRoute)
-        app.use(catchAllRoute)
-        app.listen(PORT, () => {
-            const message =
-                process.env.NODE_ENV === 'production'
-                    ? `Server running at port: ${PORT}`
-                    : `Server running at: http://localhost:${PORT}/`
-            logger.info(message)
-        })
-    })
-    .catch((e) => {
-        logger.error(e)
-        process.exit(1)
-    })
+	.then(() => {
+		app.use('/api', routes)
+		app.use(catchErrorRoute)
+		app.use(catchAllRoute)
+		app.listen(PORT, () => {
+			const message =
+				process.env.NODE_ENV === 'production'
+					? `Server running at port: ${PORT}`
+					: `Server running at: http://localhost:${PORT}/`
+			logger.info(message)
+		})
+	})
+	.catch((e) => {
+		logger.error(e)
+		process.exit(1)
+	})
