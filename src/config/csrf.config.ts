@@ -1,6 +1,8 @@
 import { CookieOptions } from 'csurf'
 import { Request } from 'express'
 
+import { originUrl } from './index.config'
+
 if (!process.env.CSRF_TOKEN_COOKIE)
     throw new Error('CSRF_TOKEN_COOKIE environmental variable not found')
 
@@ -10,6 +12,7 @@ const cookie: CookieOptions = {
     sameSite: true,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
+    domain: originUrl.replace(/^https?:\/\//, '').replace(/:\d+/, '')
 }
 
 const ignoreMethods = ['HEAD', 'OPTIONS']
