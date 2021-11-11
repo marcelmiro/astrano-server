@@ -23,7 +23,6 @@ app.use((req, res, next) => {
 	logger.info(`${req.method} ${req.originalUrl}`)
 
 	res.header('Content-Type', 'application/json;charset=UTF-8')
-    res.header('Access-Control-Allow-Origin', '*')
     // @ts-ignore
 	res.header('Access-Control-Allow-Credentials', true)
 	res.header(
