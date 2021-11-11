@@ -7,6 +7,7 @@ import {
     accessTokenTtl,
     refreshTokenTtl,
 } from '../config/auth.config'
+import { cookieDefaults } from '../config/csrf.config'
 import { reIssueTokens, deleteSessions } from '../services/session.service'
 import { getReqLocation, getUserAgent } from '../utils/device'
 import { shallowCompare } from '../utils/object'
@@ -85,9 +86,11 @@ const handleNewTokens =
 
         // Set token cookies
         res.cookie(accessTokenCookie, newAccessToken, {
+            ...cookieDefaults,
             maxAge: accessTokenTtl * 1000,
         })
         res.cookie(refreshTokenCookie, newRefreshToken, {
+            ...cookieDefaults,
             maxAge: refreshTokenTtl * 1000,
         })
 

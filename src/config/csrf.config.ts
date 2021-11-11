@@ -8,7 +8,7 @@ if (!process.env.CSRF_TOKEN_COOKIE)
 
 export const csrfTokenCookie = process.env.CSRF_TOKEN_COOKIE
 
-const cookie: CookieOptions = {
+export const cookieDefaults: CookieOptions = {
     sameSite: true,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -44,7 +44,7 @@ const ignoreAllMethods = [
 ]
 
 export const csrfOptions = (ignore = false) => ({
-    cookie,
+    cookie: cookieDefaults,
     ignoreMethods: ignore ? ignoreAllMethods : ignoreMethods,
     value: (req: Request) => req.cookies[csrfTokenCookie],
 })

@@ -7,6 +7,7 @@ import {
     accessTokenTtl,
     refreshTokenTtl,
 } from '../config/auth.config'
+import { cookieDefaults } from '../config/csrf.config'
 import { SessionInput } from '../models/session.model'
 import { validatePassword } from '../services/user.service'
 import {
@@ -70,9 +71,11 @@ export const createSessionHandler: RequestHandler<any, unknown, SessionInput> =
 
         // Set token cookies
         res.cookie(accessTokenCookie, accessToken, {
+            ...cookieDefaults,
             maxAge: accessTokenTtl * 1000,
         })
         res.cookie(refreshTokenCookie, refreshToken, {
+            ...cookieDefaults,
             maxAge: refreshTokenTtl * 1000,
         })
 
