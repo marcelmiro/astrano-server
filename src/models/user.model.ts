@@ -47,7 +47,7 @@ const userSchema = new Schema(
         password: { type: String, required: true, trim: true },
         confirmed: { type: Boolean, default: false },
         avatar: { type: String, trim: true },
-        likedProjects: [{ type: Schema.Types.ObjectId, ref: 'Projects' }],
+        likedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     },
     { timestamps: true }
 )

@@ -97,6 +97,8 @@ projectSchema.pre('save', function (next) {
         strict: true,
         trim: true,
     })
+    
+    // TODO: Check if slug not from name exception (e.g. new)
 
     project.slug = slug
     next()

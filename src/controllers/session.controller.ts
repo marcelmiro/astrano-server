@@ -38,7 +38,7 @@ export const createSessionHandler: RequestHandler<any, unknown, SessionInput> =
 				avatar: user.avatar,
 				likedProjects: user.likedProjects,
 			}
-			return res.json(returnedUser)
+			return res.status(201).json(returnedUser)
 		}
 
 		// Validate login credentials
@@ -98,7 +98,7 @@ export const createSessionHandler: RequestHandler<any, unknown, SessionInput> =
 			avatar: user.avatar,
 			likedProjects: user.likedProjects,
 		}
-		return res.json(returnedUser)
+		return res.status(201).json(returnedUser)
 	}
 
 export const getSessionsHandler: RequestHandler = async (req, res) => {
@@ -108,7 +108,7 @@ export const getSessionsHandler: RequestHandler = async (req, res) => {
 		throw new Error('An unexpected error occurred')
 	})
 
-	return res.json(sessions)
+	return res.status(200).json(sessions)
 }
 
 export const getSessionHandler: RequestHandler<{ id: string }> = async (
@@ -119,9 +119,9 @@ export const getSessionHandler: RequestHandler<{ id: string }> = async (
 	const sessionId = req.params.id
 
 	const session = (await findSessions({ _id: sessionId, user: userId }))[0]
-	if (!session) return res.status(404).json({ message: 'not found' })
+	if (!session) return res.status(404).json({ message: 'Session not found' })
 
-	return res.json(session)
+	return res.status(200).json(session)
 }
 
 export const deleteCurrentSessionHandler: RequestHandler = async (req, res) => {
@@ -131,7 +131,7 @@ export const deleteCurrentSessionHandler: RequestHandler = async (req, res) => {
 	res.clearCookie(accessTokenCookie)
 	res.clearCookie(refreshTokenCookie)
 
-	return res.status(200).json({ message: 'ok' })
+	return res.status(200).json({ success: true })
 }
 
 export const deleteSessionHandler: RequestHandler = async (req, res) => {
@@ -150,7 +150,7 @@ export const deleteSessionHandler: RequestHandler = async (req, res) => {
 
 	await deleteSessions({ _id: sessionId, user: userId }, true)
 
-	return res.status(200).json({ message: 'ok' })
+	return res.status(200).json({ success: true })
 }
 
 export const deleteAllSessionsHandler: RequestHandler = async (req, res) => {
@@ -160,5 +160,5 @@ export const deleteAllSessionsHandler: RequestHandler = async (req, res) => {
 	res.clearCookie(accessTokenCookie)
 	res.clearCookie(refreshTokenCookie)
 
-	return res.status(200).json({ message: 'ok' })
+	return res.status(200).json({ success: true })
 }

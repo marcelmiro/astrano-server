@@ -14,7 +14,7 @@ const requireUser: RequestHandler = async (req, res, next) => {
 
     // Check if user exists
     if (!res.locals.user) {
-        return res.status(401).json({ message: 'unauthorized' })
+        return res.status(401).json({ message: 'Unauthorized user' })
     }
 
     next()

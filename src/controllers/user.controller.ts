@@ -9,9 +9,8 @@ import { validationError } from '../utils/error'
 
 export const createUserHandler: RequestHandler<unknown, unknown, UserInput> =
     async (req, res) => {
-        await createUser(req.body)
-
-        return res.status(201).json({ message: 'ok' })
+        const user = await createUser(req.body)
+        return res.status(201).json(user)
     }
 
 export const getCurrentUserHandler: RequestHandler = async (req, res) => {
@@ -31,7 +30,7 @@ export const getCurrentUserHandler: RequestHandler = async (req, res) => {
 
     const { email, username, name, avatar, likedProjects } = user
     const returnedUser = { email, username, name, avatar, likedProjects }
-    return res.json(returnedUser)
+    return res.status(200).json(returnedUser)
 }
 
 type UserQuery = { id: string; username: string }
@@ -60,20 +59,20 @@ export const getUserQueryHandler: RequestHandler<
     }
 
     const user = await findUser(restQuery)
-    if (!user) return res.status(404).json({ message: 'not found' })
+    if (!user) return res.status(404).json({ message: 'User not found' })
 
     const { username, name, avatar } = user
     const returnedUser = { username, name, avatar }
-    return res.json(returnedUser)
+    return res.status(200).json(returnedUser)
 }
 
 export const getUserParamsHandler: RequestHandler<{ username: string }> =
     async (req, res) => {
         const user = await findUser(req.params)
-        if (!user) return res.status(404).json({ message: 'not found' })
+        if (!user) return res.status(404).json({ message: 'User not found' })
         const { username, name, avatar } = user
         const returnedUser = { username, name, avatar }
-        return res.json(returnedUser)
+        return res.status(200).json(returnedUser)
     }
 
 export const verifyUserHandler: RequestHandler<{ token: string }> = async (
@@ -87,5 +86,5 @@ export const verifyUserHandler: RequestHandler<{ token: string }> = async (
         return res.status(404).json({ message })
     }
 
-    return res.status(200).json({ message: 'ok' })
+    return res.status(200).json({ success: true })
 }
