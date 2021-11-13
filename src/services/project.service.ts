@@ -49,10 +49,3 @@ export async function updateProject(
 ) {
 	return await ProjectModel.updateOne(query, update)
 }
-
-export const likeProject = async (slug: string, like = true) => {
-	const project = await findProjects({ slug })
-	if (!project)
-		try {
-		} catch (e) {}
-}

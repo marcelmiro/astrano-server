@@ -1,11 +1,11 @@
 import { RequestHandler } from 'express'
-import { AnyObject, ObjectId, Schema, SortValues } from 'mongoose'
+import { ObjectId, SortValues } from 'mongoose'
 
 import { findProjects, updateProject } from '../services/project.service'
 import { findUser, updateUser } from '../services/user.service'
 
-export const createProjectHandler: RequestHandler<unknown, unknown, unknown> =
-	async (req, res) => {}
+/* export const createProjectHandler: RequestHandler<unknown, unknown, unknown> =
+	async (req, res) => {} */
 
 export const getProjectsHandler: RequestHandler<
 	unknown,
@@ -58,7 +58,8 @@ export const likeProjectHandler: RequestHandler<{ slug: string }> = async (
 		await updateUser({ _id: userId }, { $push: { likedProjects: project._id } })
 	} catch (e) {
 		await updateProject({ _id: project._id }, { likes: project.likes }).catch(
-			(e) => {}
+			/* eslint-disable @typescript-eslint/no-empty-function */
+			() => {}
 		)
 		throw e
 	}
@@ -86,7 +87,8 @@ export const dislikeProjectHandler: RequestHandler = async (req, res) => {
 		await updateUser({ _id: userId }, { $pull: { likedProjects: project._id } })
 	} catch (e) {
 		await updateProject({ _id: project._id }, { likes: project.likes }).catch(
-			(e) => {}
+			/* eslint-disable @typescript-eslint/no-empty-function */
+			() => {}
 		)
 		throw e
 	}

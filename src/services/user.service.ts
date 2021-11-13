@@ -27,7 +27,8 @@ export async function createUser(input: UserInput) {
 	try {
 		await createVerification(user)
 	} catch (e) {
-		await UserModel.deleteOne({ _id: user._id }).catch(e => {})
+		/* eslint-disable @typescript-eslint/no-empty-function */
+		await UserModel.deleteOne({ _id: user._id }).catch(() => {})
 		throw new Error('An unexpected error occurred')
 	}
 
