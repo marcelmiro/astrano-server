@@ -26,8 +26,8 @@ const handleNewTokens =
             // Invalid refresh token
             logger.info({ msg: 'Refresh token expired', refreshToken })
 
-            res.clearCookie(accessTokenCookie)
-            res.clearCookie(refreshTokenCookie)
+            res.clearCookie(accessTokenCookie, cookieDefaults)
+            res.clearCookie(refreshTokenCookie, cookieDefaults)
 
             return (res.locals = {})
         }
@@ -59,8 +59,8 @@ const handleNewTokens =
 
             await deleteSessions(sessionQuery, true)
 
-            res.clearCookie(accessTokenCookie)
-            res.clearCookie(refreshTokenCookie)
+            res.clearCookie(accessTokenCookie, cookieDefaults)
+            res.clearCookie(refreshTokenCookie, cookieDefaults)
 
             return (res.locals.revokedSession = true)
         }
@@ -78,8 +78,8 @@ const handleNewTokens =
 
             await deleteSessions({ _id: session._id }, true)
 
-            res.clearCookie(accessTokenCookie)
-            res.clearCookie(refreshTokenCookie)
+            res.clearCookie(accessTokenCookie, cookieDefaults)
+            res.clearCookie(refreshTokenCookie, cookieDefaults)
 
             return (res.locals.revokedSession = true)
         }

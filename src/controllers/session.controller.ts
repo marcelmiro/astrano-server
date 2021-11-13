@@ -128,8 +128,8 @@ export const deleteCurrentSessionHandler: RequestHandler = async (req, res) => {
 	const sessionId = res.locals.user?.session
 	if (sessionId) await deleteSessions({ _id: sessionId }, true)
 
-	res.clearCookie(accessTokenCookie)
-	res.clearCookie(refreshTokenCookie)
+	res.clearCookie(accessTokenCookie, cookieDefaults)
+	res.clearCookie(refreshTokenCookie, cookieDefaults)
 
 	return res.status(200).json({ success: true })
 }
@@ -157,8 +157,8 @@ export const deleteAllSessionsHandler: RequestHandler = async (req, res) => {
 	const userId = res.locals.user
 	await deleteSessions({ user: userId }, false)
 
-	res.clearCookie(accessTokenCookie)
-	res.clearCookie(refreshTokenCookie)
+	res.clearCookie(accessTokenCookie, cookieDefaults)
+	res.clearCookie(refreshTokenCookie, cookieDefaults)
 
 	return res.status(200).json({ success: true })
 }

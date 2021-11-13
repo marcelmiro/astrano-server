@@ -2,6 +2,7 @@ import { RequestHandler } from 'express'
 import { Types } from 'mongoose'
 
 import { accessTokenCookie, refreshTokenCookie } from '../config/auth.config'
+import { cookieDefaults } from '../config/csrf.config'
 import { createUser, findUser, verifyUser } from '../services/user.service'
 import { UserInput } from '../models/user.model'
 import { deleteSessions } from '../services/session.service'
@@ -22,8 +23,8 @@ export const getCurrentUserHandler: RequestHandler = async (req, res) => {
     if (!user) {
         await deleteSessions({ user: userId }, false)
 
-        res.clearCookie(accessTokenCookie)
-        res.clearCookie(refreshTokenCookie)
+        res.clearCookie(accessTokenCookie, cookieDefaults)
+        res.clearCookie(refreshTokenCookie, cookieDefaults)
 
         return res.status(401).json({ message: 'An unexpected error occurred' })
     }
