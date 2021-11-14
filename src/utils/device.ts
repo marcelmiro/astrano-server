@@ -14,12 +14,13 @@ const getIpAddress = (req: Request): string => {
 		msg: 'getIpAddress',
 		ip: {
 			xRealIp: req.headers['x-real-ip'],
-			nginxXRealIP: req.headers['X-Real-IP'],
+			nginxXRealIP: req.headers['X-Real-IP'] || 'no ip set',
 			xForwardedFor: req.headers['x-forwarded-for'],
 			socketRemoteAddress: req.socket.remoteAddress,
 			connectionRemoteAddress: req.connection?.remoteAddress,
 			ip: req.ip,
 			ips: req.ips,
+			headers: req.headers
 		},
 	})
 
