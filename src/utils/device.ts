@@ -9,30 +9,20 @@ const axiosGeolocationConfig: AxiosRequestConfig = { timeout: 6000 }
 
 const geolocationApi = (ip: string) => 'https://geolocation-db.com/json/' + ip
 
-const getIpAddress = (req: Request): string => {
-	logger.info({
-		msg: 'getIpAddress',
-		ip: {
-			xRealIp: req.headers['x-real-ip'],
-			nginxXRealIP: req.headers['X-Real-IP'] || 'no ip set',
-			xForwardedFor: req.headers['x-forwarded-for'],
-			socketRemoteAddress: req.socket.remoteAddress,
-			connectionRemoteAddress: req.connection?.remoteAddress,
-			ip: req.ip,
-			ips: req.ips,
-			headers: req.headers
-		},
-	})
+const getIpAddress = (req: Request): string | undefined => {
+	let ip: string | undefined
+	const xForwardedFor = req.headers['x-forwarded-for']
+	const xRealIp = req.headers['x-real-ip']
 
-	const ip =
-		req.headers['x-real-ip'] ||
-		req.headers['x-forwarded-for'] ||
-		req.socket.remoteAddress ||
-		req.connection?.remoteAddress ||
-		req.ip ||
-		req.ips
+	if (xForwardedFor) {
+		ip = Array.isArray(xForwardedFor)
+			? xForwardedFor[0]
+			: xForwardedFor.split(',')[0]
+	} else if (xRealIp) {
+		ip = Array.isArray(xRealIp) ? xRealIp[0] : xRealIp.split(',')[0]
+	}
 
-	return Array.isArray(ip) ? ip[0] : ip
+	return ip
 }
 
 export const getReqLocation = async (
@@ -40,6 +30,7 @@ export const getReqLocation = async (
 ): Promise<Partial<ILocation>> => {
 	try {
 		const ipAddress = getIpAddress(req)
+		if (!ipAddress) return {}
 
 		const { data } = await axios.get(
 			geolocationApi(ipAddress),
