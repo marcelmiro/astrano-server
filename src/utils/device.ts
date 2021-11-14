@@ -10,6 +10,19 @@ const axiosGeolocationConfig: AxiosRequestConfig = { timeout: 6000 }
 const geolocationApi = (ip: string) => 'https://geolocation-db.com/json/' + ip
 
 const getIpAddress = (req: Request): string => {
+	logger.info({
+		msg: 'getIpAddress',
+		ip: {
+			xRealIp: req.headers['x-real-ip'],
+			XRealIP: req.headers['X-Real-IP'],
+			xForwardedFor: req.headers['x-forwarded-for'],
+			socketRemoteAddress: req.socket.remoteAddress,
+			connectionRemoteAddress: req.connection?.remoteAddress,
+			ip: req.ip,
+			ips: req.ips,
+		},
+	})
+
 	const ip =
 		req.headers['x-real-ip'] ||
 		req.headers['x-forwarded-for'] ||
