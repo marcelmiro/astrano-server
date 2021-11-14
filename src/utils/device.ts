@@ -14,7 +14,7 @@ const getIpAddress = (req: Request): string => {
 		msg: 'getIpAddress',
 		ip: {
 			xRealIp: req.headers['x-real-ip'],
-			XRealIP: req.headers['X-Real-IP'],
+			nginxXRealIP: req.headers['X-Real-IP'],
 			xForwardedFor: req.headers['x-forwarded-for'],
 			socketRemoteAddress: req.socket.remoteAddress,
 			connectionRemoteAddress: req.connection?.remoteAddress,
