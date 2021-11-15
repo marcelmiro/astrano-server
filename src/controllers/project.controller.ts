@@ -1,11 +1,47 @@
 import { RequestHandler } from 'express'
 import { ObjectId, SortValues } from 'mongoose'
+import { ProjectInput } from '../models/project.model'
 
-import { findProjects, updateProject } from '../services/project.service'
+import {
+	createProject,
+	findProjects,
+	updateProject,
+} from '../services/project.service'
 import { findUser, updateUser } from '../services/user.service'
+import { validationError } from '../utils/error'
 
-/* export const createProjectHandler: RequestHandler<unknown, unknown, unknown> =
-	async (req, res) => {} */
+export const createProjectHandler: RequestHandler<
+	unknown,
+	unknown,
+	ProjectInput
+> = async (req, res) => {
+	// Validate description min and max length
+	const descriptionLength = req.body.description.blocks
+		.map(({ text }) => text)
+		.join('').length
+
+	if (descriptionLength < 200)
+		return validationError({
+			code: 'too_small',
+			message:
+				'Project description is too short - Should be 200 characters minimum',
+			path: 'description',
+		})
+
+	if (descriptionLength > 8000)
+		return validationError({
+			code: 'too_big',
+			message:
+				'Project description is too long - Should be 8000 characters maximum',
+			path: 'description',
+		})
+
+	console.log(req.body)
+
+	const project = await createProject({ ...req.body, user: res.locals.user.id })
+
+	return res.json(project)
+}
 
 export const getProjectsHandler: RequestHandler<
 	unknown,

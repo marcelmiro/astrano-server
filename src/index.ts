@@ -4,7 +4,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 
-import logger from './utils/logger'
+import logger, { finalLogger } from './utils/logger'
 import config from './config/index.config'
 import corsOptions from './config/cors.config'
 import routes from './routes'
@@ -37,6 +37,6 @@ config()
 		})
 	})
 	.catch((e) => {
-		logger.error(e)
+		finalLogger.error(e)
 		process.exit(1)
 	})

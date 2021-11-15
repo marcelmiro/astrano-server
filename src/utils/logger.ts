@@ -1,11 +1,13 @@
-import logger from 'pino'
+import pino, { P } from 'pino'
 
-export default logger({
-    transport: {
-        target: 'pino-pretty',
-    },
-    base: {
-        pid: false,
-    },
-    timestamp: () => `, "time": "${new Date().toISOString()}"`,
-})
+const options: P.LoggerOptions = {
+	transport: { target: 'pino-pretty' },
+	base: { pid: false },
+	timestamp: () => `, "time": "${new Date().toISOString()}"`,
+}
+
+const logger = pino(options)
+
+export default logger
+
+export const finalLogger = pino(options, pino.destination(1))

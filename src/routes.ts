@@ -32,8 +32,13 @@ import {
 	getSessionHandler,
 	deleteSessionHandler,
 } from './controllers/session.controller'
-import { getProjectsSchema, getProjectSchema } from './schemas/project.schema'
 import {
+	getProjectsSchema,
+	getProjectSchema,
+	createProjectSchema,
+} from './schemas/project.schema'
+import {
+	createProjectHandler,
 	getProjectsHandler,
 	getProjectHandler,
 	likeProjectHandler,
@@ -108,6 +113,13 @@ router.get(
 	'/projects/:slug',
 	validateResource(getProjectSchema),
 	handleAsync(getProjectHandler)
+)
+
+router.post(
+	'/projects',
+	requireUser,
+	validateResource(createProjectSchema),
+	handleAsync(createProjectHandler)
 )
 
 router.put(

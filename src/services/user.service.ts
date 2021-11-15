@@ -12,7 +12,7 @@ import {
 } from '../config/auth.config'
 import { signJwt, verifyJwt } from '../utils/jwt'
 import { sendVerificationEmail } from '../utils/email.util'
-import { generateAvatar } from '../utils/file'
+import { generateAvatar } from '../utils/file.util'
 
 type UserNoPassword = Omit<FlatUser, 'password'>
 

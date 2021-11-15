@@ -3,17 +3,6 @@ import slugify from 'slugify'
 
 import { UserDocument } from './user.model'
 
-export interface ProjectInput {
-	name: string
-	logoFile: File
-	tags: string[]
-	summary?: string
-	/* eslint-disable @typescript-eslint/no-explicit-any */
-	description?: Record<string, any>
-	relationship: string
-	token: Omit<IToken, 'contractAddress'>
-}
-
 interface IToken {
 	name: string
 	symbol: string
@@ -31,9 +20,28 @@ interface IStatus {
 	endsAt?: Date
 }
 
-export interface ProjectDocument
-	extends Omit<ProjectInput, 'logoFile'>,
-		Document {
+interface BaseProject {
+	name: string
+	tags: string[]
+	summary?: string
+	description: {
+		blocks: { text: string; [key: string]: unknown }[]
+		entityMap: Record<string, unknown>
+	}
+	relationship: string
+}
+
+export interface ProjectInput extends BaseProject {
+	user?: UserDocument['_id']
+	logoFile: File
+	tokenName: string
+	tokenSymbol: string
+	tokenSupply: string
+	tokenDecimals: number
+	tokenDistributionTax?: number
+}
+
+export interface ProjectDocument extends BaseProject, Document {
 	user: UserDocument['_id']
 	slug: string
 	logoUri: string
@@ -53,7 +61,7 @@ const tokenSchema = new Schema(
 		symbol: { type: String, required: true },
 		totalSupply: { type: String, required: true },
 		decimals: { type: Number, required: true },
-		distributionTax: { type: Number, required: true },
+		distributionTax: { type: Number, default: 0 },
 		contractAddress: { type: String, required: true, unique: true },
 		blockchainExplorerUrl: { type: String, required: true, unique: true },
 		price: { type: String, default: '0' },
@@ -74,12 +82,12 @@ const projectSchema = new Schema(
 	{
 		user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 		name: { type: String, required: true, unique: true },
-		slug: { type: String, required: true, unique: true },
+		slug: { type: String, unique: true },
 		logoUri: { type: String, required: true },
 		tags: [{ type: String }],
 		summary: { type: String },
-		description: { type: Object /* , required: true  */ },
-		relationship: { type: String /* , required: true */ },
+		description: { type: Object, required: true },
+		relationship: { type: String, required: true },
 		token: { type: tokenSchema, required: true },
 		status: { type: statusSchema, required: true },
 		website: { type: String },
@@ -91,18 +99,24 @@ const projectSchema = new Schema(
 
 projectSchema.pre('save', function (next) {
 	const project = this as ProjectDocument
-	if (!project.isModified('name')) return next()
 
-	const slug = slugify(project.name, {
-		replacement: '-',
-		lower: true,
-		strict: true,
-		trim: true,
-	})
+	if (project.isModified('name')) {
+		const slug = slugify(project.name, {
+			replacement: '-',
+			lower: true,
+			strict: true,
+			trim: true,
+		})
 
-	// TODO: Check if slug not from name exception (e.g. new)
+		// TODO: Check if slug not from name exception (e.g. new)
 
-	project.slug = slug
+		project.slug = slug
+	}
+
+	if (project.isModified(['token', 'symbol'])) {
+		project.token.symbol = project.token.symbol.toUpperCase()
+	}
+
 	next()
 })
 
