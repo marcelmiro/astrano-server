@@ -5,8 +5,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 
 import logger, { finalLogger } from './utils/logger'
-import config from './config/index.config'
-import corsOptions from './config/cors.config'
+import config, { corsOptions } from './config/index.config'
 import routes from './routes'
 import { catchErrorRoute, catchAllRoute } from './middleware/index.middleware'
 
@@ -18,7 +17,7 @@ app.use(cors(corsOptions))
 app.use(express.json())
 app.use(cookieParser())
 
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
 	logger.info(`${req.method} ${req.originalUrl}`)
 	next()
 })

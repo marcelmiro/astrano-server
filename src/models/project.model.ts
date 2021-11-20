@@ -21,7 +21,9 @@ interface IStatus {
 }
 
 interface BaseProject {
+	user: UserDocument['_id']
 	name: string
+	logoUrl: string
 	tags: string[]
 	summary?: string
 	description: {
@@ -32,8 +34,6 @@ interface BaseProject {
 }
 
 export interface ProjectInput extends BaseProject {
-	user?: UserDocument['_id']
-	logoFile: File
 	tokenName: string
 	tokenSymbol: string
 	tokenSupply: string
@@ -42,9 +42,7 @@ export interface ProjectInput extends BaseProject {
 }
 
 export interface ProjectDocument extends BaseProject, Document {
-	user: UserDocument['_id']
 	slug: string
-	logoUri: string
 	token: IToken
 	status: IStatus
 	website?: string
@@ -72,8 +70,8 @@ const tokenSchema = new Schema(
 const statusSchema = new Schema(
 	{
 		name: { type: String, enum: ['live', 'ico'], required: true },
-		startsAt: { type: Date, default: Date.now },
-		endsAt: { type: Date, default: Date.now },
+		startsAt: { type: Date },
+		endsAt: { type: Date },
 	},
 	{ _id: false, timestamps: false }
 )
@@ -83,10 +81,10 @@ const projectSchema = new Schema(
 		user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 		name: { type: String, required: true, unique: true },
 		slug: { type: String, unique: true },
-		logoUri: { type: String, required: true },
+		logoUrl: { type: String, required: true },
 		tags: [{ type: String }],
 		summary: { type: String },
-		description: { type: Object, required: true },
+		description: { blocks: [{ type: Object }], entityMap: { type: Object } },
 		relationship: { type: String, required: true },
 		token: { type: tokenSchema, required: true },
 		status: { type: statusSchema, required: true },
@@ -100,6 +98,7 @@ const projectSchema = new Schema(
 projectSchema.pre('save', function (next) {
 	const project = this as ProjectDocument
 
+	// On name change
 	if (project.isModified('name')) {
 		const slug = slugify(project.name, {
 			replacement: '-',
@@ -113,6 +112,7 @@ projectSchema.pre('save', function (next) {
 		project.slug = slug
 	}
 
+	// On token symbol change
 	if (project.isModified(['token', 'symbol'])) {
 		project.token.symbol = project.token.symbol.toUpperCase()
 	}

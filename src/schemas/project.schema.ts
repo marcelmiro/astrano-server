@@ -34,7 +34,8 @@ export const createProjectSchema = object({
 			.refine((value) => !value || value.length > 10, {
 				message: 'Summary is too short - Should be 10 characters minimum',
 				path: ['summary'],
-			}),
+			})
+			.optional(),
 		description: object({
 			blocks: array(
 				object({
@@ -92,4 +93,19 @@ export const createProjectSchema = object({
 			.optional(),
 		// website: string({ required_error: 'Website is required' }),
 	}),
+	file: object({
+		fieldname: string().refine((value) => value === 'logo', {
+			message: 'Logo is required',
+			path: ['logo'],
+		}),
+		path: string().refine((value) => value, {
+			message: 'Logo is required',
+			path: ['logo'],
+		}),
+	})
+		.optional()
+		.refine((file) => file, {
+			message: 'Logo is required',
+			path: ['logo'],
+		}),
 })

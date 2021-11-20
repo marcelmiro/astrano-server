@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express'
 import { ObjectId, SortValues } from 'mongoose'
-import { ProjectInput } from '../models/project.model'
 
+import { ProjectInput } from '../models/project.model'
 import {
 	createProject,
 	findProjects,
@@ -9,6 +9,7 @@ import {
 } from '../services/project.service'
 import { findUser, updateUser } from '../services/user.service'
 import { validationError } from '../utils/error'
+import { uploadImage, UploadImageParams } from '../utils/file.util'
 
 export const createProjectHandler: RequestHandler<
 	unknown,
@@ -16,6 +17,7 @@ export const createProjectHandler: RequestHandler<
 	ProjectInput
 > = async (req, res) => {
 	// Validate description min and max length
+	// Not able to do it in schema with refine
 	const descriptionLength = req.body.description.blocks
 		.map(({ text }) => text)
 		.join('').length
@@ -36,12 +38,30 @@ export const createProjectHandler: RequestHandler<
 			path: 'description',
 		})
 
-	console.log(req.body)
+	const projectData = { ...req.body, user: res.locals.user.id, logo: req.file }
+	const project = await createProject(projectData)
 
-	const project = await createProject({ ...req.body, user: res.locals.user.id })
-
-	return res.json(project)
+	return res.status(201).json(project)
 }
+
+export const uploadHandler: RequestHandler<unknown, unknown, ProjectInput> =
+	async (req, res) => {
+		const file = req.file as Express.Multer.File
+
+		const uploadLogoParams: UploadImageParams = {
+			file,
+			directory: 'projects',
+			resolutions: [128],
+		}
+
+		const logoUrl = await uploadImage(uploadLogoParams)
+
+		const user = res.locals.user.id
+		const projectData = { ...req.body, user, logoUrl }
+		const project = await createProject(projectData)
+
+		return res.status(201).json(project)
+	}
 
 export const getProjectsHandler: RequestHandler<
 	unknown,

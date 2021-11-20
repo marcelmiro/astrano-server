@@ -26,9 +26,9 @@ const s3 = new S3({
 export async function connect() {
 	try {
 		await s3.headBucket({ Bucket: bucketName }).promise()
-		logger.info('AWS S3 connected')
+		logger.info('File server connected')
 	} catch (e) {
-		throw new Error('Could not connect to AWS S3 server')
+		throw new Error('Could not connect to file server')
 	}
 }
 

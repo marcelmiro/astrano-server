@@ -35,7 +35,7 @@ export const createSessionHandler: RequestHandler<any, unknown, SessionInput> =
 				email: user.email,
 				username: user.username,
 				name: user.name,
-				avatar: user.avatar,
+				logoUrl: user.logoUrl,
 				likedProjects: user.likedProjects,
 			}
 			return res.status(201).json(returnedUser)
@@ -95,7 +95,7 @@ export const createSessionHandler: RequestHandler<any, unknown, SessionInput> =
 			email: user.email,
 			username: user.username,
 			name: user.name,
-			avatar: user.avatar,
+			logoUrl: user.logoUrl,
 			likedProjects: user.likedProjects,
 		}
 		return res.status(201).json(returnedUser)

@@ -15,7 +15,7 @@ export interface UserDocument
     extends Omit<UserInput, 'passwordConfirmation'>,
         Document {
     confirmed: boolean
-    avatar?: string
+    logoUrl?: string
     likedProjects: Schema.Types.ObjectId[]
     expiresAt?: Date
     createdAt: Date
@@ -46,7 +46,7 @@ const userSchema = new Schema(
         name: { type: String, required: true, trim: true },
         password: { type: String, required: true, trim: true },
         confirmed: { type: Boolean, default: false },
-        avatar: { type: String, trim: true },
+        logoUrl: { type: String, trim: true },
         likedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
     },
     { timestamps: true }

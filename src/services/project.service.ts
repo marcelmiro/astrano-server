@@ -17,20 +17,23 @@ type Project = ProjectDocument & { _id: ObjectId }
 type FlatProject = FlattenMaps<LeanDocument<Project>>
 
 export async function createProject(input: ProjectInput) {
-	const tempValues = {
-		user: input.user,
-		logoUri: 'https://i.imgur.com/TyOjGF6.png',
-		name: input.name,
-		tags: input.tags,
-		summary: input.summary,
-		description: input.description,
-		relationship: input.relationship,
+	const {
+		tokenName,
+		tokenSymbol,
+		tokenSupply,
+		tokenDecimals,
+		tokenDistributionTax,
+		...inputData
+	} = input
+
+	const projectData = {
+		...inputData,
 		token: {
-			name: input.tokenName,
-			symbol: input.tokenSymbol,
-			totalSupply: input.tokenSupply,
-			decimals: input.tokenDecimals,
-			distributionTax: input.tokenDistributionTax,
+			name: tokenName,
+			symbol: tokenSymbol,
+			totalSupply: tokenSupply,
+			decimals: tokenDecimals,
+			distributionTax: tokenDistributionTax,
 			contractAddress: '0x3faf7e4fe6a1c30f78cc3a83755e33364bab77ed',
 			blockchainExplorerUrl:
 				'https://bscscan.com/token/0x3faf7e4fe6a1c30f78cc3a83755e33364bab77ed',
@@ -48,7 +51,9 @@ export async function createProject(input: ProjectInput) {
 		],
 	}
 
-	const project = (await ProjectModel.create(tempValues)).toJSON()
+	const _project = await ProjectModel.create(projectData)
+
+	const project = _project.toJSON()
 
 	/* eslint-disable @typescript-eslint/no-unused-vars */
 	const { relationship, ...returnedProject } = project
@@ -69,7 +74,7 @@ export async function findProjects(
 				let: { user: '$user' },
 				pipeline: [
 					{ $match: { $expr: { $eq: ['$$user', '$_id'] } } },
-					{ $project: { _id: 0, username: 1, avatar: 1 } },
+					{ $project: { _id: 0, username: 1, logoUrl: 1 } },
 				],
 			},
 		},

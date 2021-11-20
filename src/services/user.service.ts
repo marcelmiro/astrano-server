@@ -12,7 +12,7 @@ import {
 } from '../config/auth.config'
 import { signJwt, verifyJwt } from '../utils/jwt'
 import { sendVerificationEmail } from '../utils/email.util'
-import { generateAvatar } from '../utils/file.util'
+import { generateAndUploadAvatar } from '../utils/file.util'
 
 type UserNoPassword = Omit<FlatUser, 'password'>
 
@@ -110,11 +110,11 @@ export async function verifyUser(token: string): Promise<boolean> {
 		return false
 	}
 
-	// Generate avatar and update user with confirmed
-	const avatar = generateAvatar(user.username)
+	// Generate and upload avatar and update user with logo URL
+	const logoUrl = await generateAndUploadAvatar()
 
 	// Update user to confirmed
-	await updateUser({ _id: decoded.id }, { confirmed: true, avatar })
+	await updateUser({ _id: decoded.id }, { confirmed: true, logoUrl })
 
 	return true
 }

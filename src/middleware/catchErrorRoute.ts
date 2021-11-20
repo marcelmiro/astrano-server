@@ -56,7 +56,50 @@ const catchAllRoute: ErrorRequestHandler = (err, req, res, next) => {
 		return res.status(409).json(error)
 	}
 
-	console.log('awdaiuwhdoawudhaowd')
+	// Handle file errors
+	if (err.name === 'MulterError') {
+		// File too large
+		if (err.code === 'LIMIT_FILE_SIZE') {
+			const error = {
+				type: 'file_size',
+				errors: [
+					{
+						path: err.field,
+						code: err.code,
+						message: 'File sent is too large',
+					},
+				],
+			}
+			return res.status(413).json(error)
+		}
+
+		if (err.code === 'LIMIT_LOW_RES') {
+			const error = {
+				type: 'image_res',
+				errors: [
+					{
+						path: err.field,
+						code: err.code,
+						message: err.message || 'Image resolution too low',
+					},
+				],
+			}
+			return res.status(400).json(error)
+		}
+
+		// Too many files
+		if (err.code === 'LIMIT_FILE_COUNT') {
+			const error = { message: 'Too many files sent' }
+			return res.status(400).json(error)
+		}
+
+		// Unexpected file
+		if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+			const error = { message: 'Unexpected file found' }
+			return res.status(400).json(error)
+		}
+	}
+
 	logger.error(err)
 	const error = { message: 'An unexpected error occurred' }
 	return res.status(err.status || err.statusCode || 500).json(error)

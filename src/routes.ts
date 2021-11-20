@@ -6,6 +6,7 @@ import {
 	deserializeUser,
 	requireUser,
 	csrfIgnoreAll,
+	parseMultiPartForm,
 } from './middleware/index.middleware'
 import {
 	createUserSchema,
@@ -43,6 +44,7 @@ import {
 	getProjectHandler,
 	likeProjectHandler,
 	dislikeProjectHandler,
+	uploadHandler,
 } from './controllers/project.controller'
 
 const router = Router()
@@ -136,10 +138,19 @@ router.delete(
 	handleAsync(dislikeProjectHandler)
 )
 
+router.post(
+	'/upload',
+	requireUser,
+	parseMultiPartForm('logo', 'data'),
+	validateResource(createProjectSchema),
+	handleAsync(uploadHandler)
+)
+
 /*
+	GET: /search?q=:text
+
     POST: /auth/forgot-password/:email
 
-    POST: /projects
     GET: /projects/:slug/price
     POST: /projects/:slug/report
 
