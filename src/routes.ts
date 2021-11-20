@@ -44,7 +44,6 @@ import {
 	getProjectHandler,
 	likeProjectHandler,
 	dislikeProjectHandler,
-	uploadHandler,
 } from './controllers/project.controller'
 
 const router = Router()
@@ -120,6 +119,7 @@ router.get(
 router.post(
 	'/projects',
 	requireUser,
+	parseMultiPartForm('logo', 'data'),
 	validateResource(createProjectSchema),
 	handleAsync(createProjectHandler)
 )
@@ -136,14 +136,6 @@ router.delete(
 	requireUser,
 	validateResource(getProjectSchema),
 	handleAsync(dislikeProjectHandler)
-)
-
-router.post(
-	'/upload',
-	requireUser,
-	parseMultiPartForm('logo', 'data'),
-	validateResource(createProjectSchema),
-	handleAsync(uploadHandler)
 )
 
 /*

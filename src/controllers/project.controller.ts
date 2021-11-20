@@ -38,30 +38,24 @@ export const createProjectHandler: RequestHandler<
 			path: 'description',
 		})
 
-	const projectData = { ...req.body, user: res.locals.user.id, logo: req.file }
+	// Upload logo and get URL
+	const file = req.file as Express.Multer.File
+
+	const uploadLogoParams: UploadImageParams = {
+		file,
+		directory: 'projects',
+		resolutions: [128],
+	}
+
+	const logoUrl = await uploadImage(uploadLogoParams)
+
+	// Set data object and upload project
+	const user = res.locals.user.id
+	const projectData = { ...req.body, user, logoUrl }
 	const project = await createProject(projectData)
 
 	return res.status(201).json(project)
 }
-
-export const uploadHandler: RequestHandler<unknown, unknown, ProjectInput> =
-	async (req, res) => {
-		const file = req.file as Express.Multer.File
-
-		const uploadLogoParams: UploadImageParams = {
-			file,
-			directory: 'projects',
-			resolutions: [128],
-		}
-
-		const logoUrl = await uploadImage(uploadLogoParams)
-
-		const user = res.locals.user.id
-		const projectData = { ...req.body, user, logoUrl }
-		const project = await createProject(projectData)
-
-		return res.status(201).json(project)
-	}
 
 export const getProjectsHandler: RequestHandler<
 	unknown,
