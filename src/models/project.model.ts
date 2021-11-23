@@ -60,8 +60,12 @@ const tokenSchema = new Schema(
 		totalSupply: { type: String, required: true },
 		decimals: { type: Number, required: true },
 		distributionTax: { type: Number, default: 0 },
-		contractAddress: { type: String, required: true, unique: true },
-		blockchainExplorerUrl: { type: String, required: true, unique: true },
+		// TODO: Remove unique comment
+		contractAddress: { type: String, required: true /* , unique: true */ },
+		blockchainExplorerUrl: {
+			type: String,
+			required: true /* , unique: true */,
+		},
 		price: { type: String, default: '0' },
 	},
 	{ _id: false, timestamps: false }
