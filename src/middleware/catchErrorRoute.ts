@@ -100,6 +100,12 @@ const catchAllRoute: ErrorRequestHandler = (err, req, res, next) => {
 		}
 	}
 
+	// Multer unsupported file error
+	if (err.message === 'Input file contains unsupported image format') {
+		const error = { message: 'A file contains an unsupported format' }
+		return res.status(400).json(error)
+	}
+
 	logger.error(err)
 	const error = { message: 'An unexpected error occurred' }
 	return res.status(err.status || err.statusCode || 500).json(error)

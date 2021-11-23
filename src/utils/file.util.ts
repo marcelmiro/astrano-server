@@ -6,7 +6,7 @@ import { MulterError } from 'multer'
 import { randomBytes } from 'crypto'
 import { createReadStream } from 'fs'
 
-import s3, { bucketName } from '../config/file.config'
+import s3, { bucketName, FileType } from '../config/file.config'
 
 type File = Express.Multer.File
 
@@ -35,7 +35,7 @@ const getFilePath = (fileName: string, directory?: string): string => {
 interface UploadFileParams {
 	buffer?: Buffer
 	file?: File
-	contentType?: string
+	contentType?: FileType
 	fileName?: string
 	directory?: string
 }
@@ -94,7 +94,7 @@ export const uploadImage = async ({
 	file,
 	directory,
 	resolutions,
-	minOriginalSize = 128,
+	minOriginalSize = 32,
 	maxOriginalSize = 512,
 }: UploadImageParams): Promise<string> => {
 	let sharpImage = sharp(file.path)
@@ -104,6 +104,23 @@ export const uploadImage = async ({
 	const { width, height } = imageMetaData
 
 	if (!width || !height) throw new MulterError('LIMIT_UNEXPECTED_FILE')
+
+	// Custom upload for SVG files - No need to have different resolutions
+	if (file.mimetype === 'image/svg+xml') {
+		const fileName = file.filename
+		const contentType = file.mimetype as FileType
+
+		const uploadParams: UploadFileParams = {
+			file,
+			fileName,
+			directory,
+			contentType,
+		}
+
+		const upload = await uploadFile(uploadParams)
+
+		return getFileUrl(upload.Key)
+	}
 
 	let imageSize = width
 
@@ -134,7 +151,7 @@ export const uploadImage = async ({
 
 	// Upload original file
 	const fileName = file.filename
-	const contentType = file.mimetype
+	const contentType = file.mimetype as FileType
 
 	const uploadParams: UploadFileParams = {
 		buffer: await sharpImage.toBuffer(),
@@ -177,7 +194,7 @@ const baseAvatarOptions: AvatarOptions = {
 	backgroundColor: '#f0f0f0',
 }
 
-const avatarContentType = 'image/svg+xml'
+const avatarContentType: FileType = 'image/svg+xml'
 
 function generateAvatar(seed: string, options?: AvatarOptions) {
 	const avatarOptions = { ...baseAvatarOptions, ...options, seed }

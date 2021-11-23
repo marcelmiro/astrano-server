@@ -45,6 +45,7 @@ import {
 	likeProjectHandler,
 	dislikeProjectHandler,
 } from './controllers/project.controller'
+import { ParseMultiPartFormParams } from './middleware/parseMultiPartForm'
 
 const router = Router()
 
@@ -116,10 +117,17 @@ router.get(
 	handleAsync(getProjectHandler)
 )
 
+const postProjectMultiPartFormParams: ParseMultiPartFormParams = {
+	fileFormat: 'logo',
+	jsonField: 'data',
+	allowedTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+	maxSize: 1024000,
+}
+
 router.post(
 	'/projects',
 	requireUser,
-	parseMultiPartForm('logo', 'data'),
+	parseMultiPartForm(postProjectMultiPartFormParams),
 	validateResource(createProjectSchema),
 	handleAsync(createProjectHandler)
 )

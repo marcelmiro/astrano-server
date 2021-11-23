@@ -1,36 +1,50 @@
 import { RequestHandler } from 'express'
-import multer from 'multer'
+import multer, { Options as MulterOptions } from 'multer'
 import { unlink } from 'fs/promises'
 
 import logger from '../utils/logger'
+import { tempDir, maxSize, FileType } from '../config/file.config'
+import { validationError } from '../utils/error'
 
-const _tempDir = process.env.FILE_TEMP_DIR
-const tempDir = _tempDir?.replace(/^\/*/, '').replace(/\/*$/, '/')
+type File = Express.Multer.File
 
-const _maxSize = process.env.FILE_MAX_SIZE
-const maxSize = !!_maxSize && parseInt(_maxSize)
+type FileFormat = string | [string, number?] | undefined
 
-const upload = multer({
+type FileCleanup = (
+	files: File[] | { [fieldName: string]: File[] } | undefined
+) => Promise<void>
+
+type ParseMulter = (
+	jsonField?: string,
+	allowedTypes?: FileType[]
+) => RequestHandler
+
+export interface ParseMultiPartFormParams {
+	fileFormat: FileFormat
+	jsonField?: string
+	allowedTypes?: FileType[]
+	maxSize?: number
+}
+
+type ParseMultiPartForm = (params: ParseMultiPartFormParams) => RequestHandler[]
+
+const defaultUploadParams = (fileSize?: number): MulterOptions => ({
 	dest: tempDir || 'uploads/',
 	limits: {
-		fileSize: maxSize || 512000,
+		fileSize: fileSize || maxSize || 512000,
 		files: 4,
 	},
 })
 
-type FileFormat = string | [string, number?] | undefined
+const upload = (fileSize?: number) => multer(defaultUploadParams(fileSize))
 
-const useMulterUpload = (fileFormat: FileFormat) => {
-	if (typeof fileFormat === 'string') return upload.single(fileFormat)
+const useMulterUpload = (fileFormat: FileFormat, fileSize?: number) => {
+	const uploadFunc = upload(fileSize)
+	if (typeof fileFormat === 'string') return uploadFunc.single(fileFormat)
 	if (Array.isArray(fileFormat))
-		return upload.array(fileFormat[0], fileFormat[1])
-	return upload.any()
+		return uploadFunc.array(fileFormat[0], fileFormat[1])
+	return uploadFunc.any()
 }
-
-type File = Express.Multer.File
-type FileCleanup = (
-	files: File[] | { [fieldName: string]: File[] } | undefined
-) => Promise<void>
 
 const fileCleanup: FileCleanup = async (files) => {
 	if (!files) return
@@ -43,17 +57,43 @@ const fileCleanup: FileCleanup = async (files) => {
 
 	if (!filePaths || filePaths.length === 0) return
 
-	for (const path of filePaths) path && (await unlink(path))
+	for (const path of filePaths) {
+		try {
+			if (path) await unlink(path)
+		} catch (e) {
+			logger.error(e)
+		}
+	}
 }
 
-const parseMultiPartForm =
-	(jsonField?: string): RequestHandler =>
-	(req, res, next) => {
+const parseMulter: ParseMulter =
+	(jsonField, allowedTypes) => (req, res, next) => {
+		// Get request files as an array of files
+		let _files = !!req.file && [req.file]
+		if (!_files && req.files) {
+			if (Array.isArray(req.files)) _files = req.files
+			else Object.values(req.files).flat()
+		}
+
+		const files = _files || []
+
 		// Cleanup files on route finish
-		res.on('finish', async () => {
-			const files = req.file ? [req.file] : req.files
+		res.on('finish', async () =>
 			fileCleanup(files).catch((e) => logger.error(e))
-		})
+		)
+
+		// Validate file type
+		if (
+			allowedTypes &&
+			!files.every((file) => allowedTypes.includes(file.mimetype as FileType))
+		) {
+			const stringifiedAllowedTypes = allowedTypes.join(', ')
+			return validationError({
+				code: 'LIMIT_UNEXPECTED_FILE',
+				message: `Only file formats (${stringifiedAllowedTypes}) are allowed`,
+				path: files[0].fieldname,
+			})
+		}
 
 		// If JSON data exists, parse it from string and override req.body to JSON
 		if (jsonField) {
@@ -77,7 +117,14 @@ const parseMultiPartForm =
 		next()
 	}
 
-export default (fileFormat?: FileFormat, jsonField?: string) => [
-	useMulterUpload(fileFormat),
-	parseMultiPartForm(jsonField),
+const parseMultiPartForm: ParseMultiPartForm = ({
+	fileFormat,
+	jsonField,
+	allowedTypes,
+	maxSize,
+}) => [
+	useMulterUpload(fileFormat, maxSize),
+	parseMulter(jsonField, allowedTypes),
 ]
+
+export default parseMultiPartForm
