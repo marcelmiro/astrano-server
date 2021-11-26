@@ -17,6 +17,7 @@ import {
 import {
 	createUserHandler,
 	getCurrentUserHandler,
+	getCurrentUserLikedProjectsHandler,
 	getUserParamsHandler,
 	getUserQueryHandler,
 	verifyUserHandler,
@@ -76,6 +77,12 @@ router.get(
 )
 
 router.get('/users/me', requireUser, handleAsync(getCurrentUserHandler))
+
+router.get(
+	'/users/me/liked-projects',
+	requireUser,
+	handleAsync(getCurrentUserLikedProjectsHandler)
+)
 
 router.get(
 	'/users',

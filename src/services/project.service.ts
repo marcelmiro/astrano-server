@@ -91,6 +91,13 @@ export async function findProjects(
 	return projects || []
 }
 
+export async function findLikedProjects(projects: ObjectId[]) {
+	return await ProjectModel.find(
+		{ _id: { $in: projects } },
+		{ name: 1, slug: 1, logoUrl: 1 }
+	)
+}
+
 export async function updateProject(
 	query: FilterQuery<ProjectDocument>,
 	update: UpdateQuery<Project>

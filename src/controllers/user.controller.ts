@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express'
-import { Types } from 'mongoose'
+import { Types, ObjectId } from 'mongoose'
 
 import { accessTokenCookie, refreshTokenCookie } from '../config/auth.config'
 import { cookieDefaults } from '../config/csrf.config'
@@ -7,6 +7,7 @@ import { createUser, findUser, verifyUser } from '../services/user.service'
 import { UserInput } from '../models/user.model'
 import { deleteSessions } from '../services/session.service'
 import { validationError } from '../utils/error'
+import { findLikedProjects } from '../services/project.service'
 
 export const createUserHandler: RequestHandler<unknown, unknown, UserInput> =
 	async (req, res) => {
@@ -32,6 +33,31 @@ export const getCurrentUserHandler: RequestHandler = async (req, res) => {
 	const { email, username, name, logoUrl, likedProjects } = user
 	const returnedUser = { email, username, name, logoUrl, likedProjects }
 	return res.status(200).json(returnedUser)
+}
+
+export const getCurrentUserLikedProjectsHandler: RequestHandler = async (
+	_req,
+	res
+) => {
+	const userId = res.locals.user.id
+
+	const user = await findUser({ _id: userId })
+
+	// Revoke access to session and tokens
+	if (!user) {
+		await deleteSessions({ user: userId }, false)
+
+		res.clearCookie(accessTokenCookie, cookieDefaults)
+		res.clearCookie(refreshTokenCookie, cookieDefaults)
+
+		return res.status(401).json({ message: 'An unexpected error occurred' })
+	}
+
+	const { likedProjects } = user
+
+	const projects = await findLikedProjects(likedProjects as ObjectId[])
+
+	return res.status(200).json({ likedProjects: projects })
 }
 
 type UserQuery = { id: string; username: string }
