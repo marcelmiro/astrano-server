@@ -2,9 +2,9 @@ import {
 	FlattenMaps,
 	LeanDocument,
 	FilterQuery,
-	SortValues,
 	UpdateQuery,
 	ObjectId,
+	PipelineStage,
 } from 'mongoose'
 
 import ProjectModel, {
@@ -63,30 +63,33 @@ export async function createProject(input: ProjectInput) {
 
 export async function findProjects(
 	query: FilterQuery<ProjectDocument> = {},
-	sort?: Record<string, SortValues>
+	sort?: Record<string, 1 | -1>
 ): Promise<FlatProject[]> {
-	const aggregation = [
-		query ? { $match: query } : undefined,
-		{
-			$lookup: {
-				from: 'users',
-				as: 'user',
-				let: { user: '$user' },
-				pipeline: [
-					{ $match: { $expr: { $eq: ['$$user', '$_id'] } } },
-					{ $project: { _id: 0, username: 1, logoUrl: 1 } },
-				],
-			},
-		},
-		{
-			$set: {
-				user: { $arrayElemAt: ['$user', 0] },
-			},
-		},
-		sort ? { $sort: sort } : undefined,
-	]
+	const pipeline: PipelineStage[] = []
 
-	const projects = await ProjectModel.aggregate(aggregation.filter(Boolean))
+	if (query) pipeline.push({ $match: query })
+
+	pipeline.push({
+		$lookup: {
+			from: 'users',
+			as: 'user',
+			let: { user: '$user' },
+			pipeline: [
+				{ $match: { $expr: { $eq: ['$$user', '$_id'] } } },
+				{ $project: { _id: 0, username: 1, logoUrl: 1 } },
+			],
+		},
+	})
+
+	pipeline.push({
+		$set: {
+			user: { $arrayElemAt: ['$user', 0] },
+		},
+	})
+
+	if (sort) pipeline.push({ $sort: sort })
+
+	const projects = await ProjectModel.aggregate(pipeline)
 
 	return projects || []
 }

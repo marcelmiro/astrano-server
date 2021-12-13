@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express'
-import { ObjectId, SortValues } from 'mongoose'
+import { ObjectId } from 'mongoose'
 
 import { ProjectInput } from '../models/project.model'
 import {
@@ -63,7 +63,7 @@ export const getProjectsHandler: RequestHandler<
 	unknown,
 	{ sort: string }
 > = async (req, res) => {
-	let sort: Record<string, SortValues> = {}
+	let sort: Record<string, 1 | -1> = {}
 
 	if (req.query.sort === 'best') sort = { likes: -1, createdAt: -1 }
 	else sort = { createdAt: -1, likes: -1 } // Default sort (created date then likes)
