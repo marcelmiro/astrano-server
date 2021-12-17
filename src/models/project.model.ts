@@ -2,6 +2,7 @@ import { Document, Schema, model } from 'mongoose'
 import slugify from 'slugify'
 
 import { UserDocument } from './user.model'
+import { validationError } from '../utils/error'
 
 interface IToken {
 	name: string
@@ -25,7 +26,6 @@ interface BaseProject {
 	name: string
 	logoUrl: string
 	tags: string[]
-	summary?: string
 	description: {
 		blocks: { text: string; [key: string]: unknown }[]
 		entityMap: Record<string, unknown>
@@ -56,15 +56,14 @@ export interface ProjectDocument extends BaseProject, Document {
 const tokenSchema = new Schema(
 	{
 		name: { type: String, required: true },
-		symbol: { type: String, required: true },
+		symbol: { type: String, required: true, uppercase: true },
 		totalSupply: { type: String, required: true },
 		decimals: { type: Number, required: true },
 		distributionTax: { type: Number, default: 0 },
-		// TODO: Remove unique comment
-		contractAddress: { type: String, required: true /* , unique: true */ },
+		contractAddress: { type: String, required: true /* , unique: true */ }, // TODO: Remove unique comment
 		blockchainExplorerUrl: {
 			type: String,
-			required: true /* , unique: true */,
+			required: true /* , unique: true */, // TODO: Remove unique comment
 		},
 		price: { type: String, default: '0' },
 	},
@@ -86,8 +85,7 @@ const projectSchema = new Schema(
 		name: { type: String, required: true, unique: true },
 		slug: { type: String, unique: true },
 		logoUrl: { type: String, required: true },
-		tags: [{ type: String }],
-		summary: { type: String },
+		tags: [{ type: String, required: true }],
 		description: { blocks: [{ type: Object }], entityMap: { type: Object } },
 		relationship: { type: String, required: true },
 		token: { type: tokenSchema, required: true },
@@ -98,6 +96,8 @@ const projectSchema = new Schema(
 	},
 	{ timestamps: true }
 )
+
+const bannedSlugs = ['new']
 
 projectSchema.pre('save', function (next) {
 	const project = this as ProjectDocument
@@ -111,14 +111,17 @@ projectSchema.pre('save', function (next) {
 			trim: true,
 		})
 
-		// TODO: Check if slug not from name exception (e.g. new)
+		// Throw error if slug is not allowed
+		if (bannedSlugs.includes(slug)) {
+			const error = {
+				code: 'invalid value',
+				message: 'That name cannot be used - Please use another one',
+				path: ['name'],
+			}
+			validationError(error)
+		}
 
 		project.slug = slug
-	}
-
-	// On token symbol change
-	if (project.isModified(['token', 'symbol'])) {
-		project.token.symbol = project.token.symbol.toUpperCase()
 	}
 
 	next()

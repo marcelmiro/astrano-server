@@ -29,13 +29,6 @@ export const createProjectSchema = object({
 		)
 			.nonempty({ message: 'Project must have at least 1 tag' })
 			.max(10, 'Project must have at most 10 tags'),
-		summary: string()
-			.max(160, 'Summary is too long - Should be 160 characters maximum')
-			.refine((value) => !value || value.length > 10, {
-				message: 'Summary is too short - Should be 10 characters minimum',
-				path: ['summary'],
-			})
-			.optional(),
 		description: object({
 			blocks: array(
 				object({

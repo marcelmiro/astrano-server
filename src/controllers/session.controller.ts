@@ -98,10 +98,11 @@ export const createSessionHandler: RequestHandler<any, unknown, SessionInput> =
 			logoUrl: user.logoUrl,
 			likedProjects: user.likedProjects,
 		}
+
 		return res.status(201).json(returnedUser)
 	}
 
-export const getSessionsHandler: RequestHandler = async (req, res) => {
+export const getSessionsHandler: RequestHandler = async (_req, res) => {
 	const userId = res.locals.user.id
 
 	const sessions = await findSessions({ user: userId }).catch(() => {
@@ -124,7 +125,10 @@ export const getSessionHandler: RequestHandler<{ id: string }> = async (
 	return res.status(200).json(session)
 }
 
-export const deleteCurrentSessionHandler: RequestHandler = async (req, res) => {
+export const deleteCurrentSessionHandler: RequestHandler = async (
+	_req,
+	res
+) => {
 	const sessionId = res.locals.user?.session
 	if (sessionId) await deleteSessions({ _id: sessionId }, true)
 
@@ -153,7 +157,7 @@ export const deleteSessionHandler: RequestHandler = async (req, res) => {
 	return res.status(200).json({ success: true })
 }
 
-export const deleteAllSessionsHandler: RequestHandler = async (req, res) => {
+export const deleteAllSessionsHandler: RequestHandler = async (_req, res) => {
 	const userId = res.locals.user
 	await deleteSessions({ user: userId }, false)
 

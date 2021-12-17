@@ -22,11 +22,12 @@ export const createProjectHandler: RequestHandler<
 		.map(({ text }) => text)
 		.join('').length
 
-	if (descriptionLength < 200)
+	// TODO: Change min length to 200
+	if (descriptionLength < 20)
 		return validationError({
 			code: 'too_small',
 			message:
-				'Project description is too short - Should be 200 characters minimum',
+				'Project description is too short - Should be 20 characters minimum',
 			path: 'description',
 		})
 
