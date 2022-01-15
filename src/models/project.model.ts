@@ -12,6 +12,7 @@ interface IToken {
 	distributionTax: number
 	contractAddress: string
 	blockchainExplorerUrl: string
+	marketUrl?: string
 	price: string
 }
 
@@ -65,6 +66,7 @@ const tokenSchema = new Schema(
 			type: String,
 			required: true /* , unique: true */, // TODO: Remove unique comment
 		},
+		marketUrl: { type: String /* , unique: true */ }, // TODO: Remove unique comment
 		price: { type: String, default: '0' },
 	},
 	{ _id: false, timestamps: false }
