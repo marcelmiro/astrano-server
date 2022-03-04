@@ -68,6 +68,13 @@ export async function findUndeployedProject(
 	return project ? project.toJSON() : null
 }
 
+export async function deleteUndeployedProject(
+	query: FilterQuery<UndeployedProjectDocument>
+): Promise<boolean> {
+	const { deletedCount } = await UndeployedProjectModel.deleteOne(query)
+	return deletedCount > 0
+}
+
 export async function findLikedProjects(projects: ObjectId[]) {
 	return await ProjectModel.find(
 		{ _id: { $in: projects } },

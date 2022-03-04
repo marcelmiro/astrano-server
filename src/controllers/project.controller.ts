@@ -8,6 +8,7 @@ import {
 } from '../models/project.model'
 import {
 	createProject,
+	deleteUndeployedProject,
 	deployProject,
 	findProjects,
 	findUndeployedProject,
@@ -157,6 +158,17 @@ export const deployProjectHandler: RequestHandler<
 	const project = await deployProject({ userId, ...req.body })
 	if (!project) return res.status(404).json({ message: 'Project not found' })
 	return res.status(200).json(project)
+}
+
+export const deleteUndeployedProjectHandler: RequestHandler = async (
+	_req,
+	res
+) => {
+	const userId = res.locals.user.id
+	const isDeleted = await deleteUndeployedProject({ user: userId })
+	if (!isDeleted)
+		return res.status(404).json({ message: 'Project not found' })
+	return res.status(200).json({ success: true })
 }
 
 export const likeProjectHandler: RequestHandler<{ slug: string }> = async (

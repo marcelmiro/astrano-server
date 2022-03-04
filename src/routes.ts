@@ -48,6 +48,7 @@ import {
 	dislikeProjectHandler,
 	getUndeployedProjectHandler,
 	deployProjectHandler,
+	deleteUndeployedProjectHandler,
 } from './controllers/project.controller'
 import { ParseMultiPartFormParams } from './middleware/parseMultiPartForm'
 
@@ -132,6 +133,12 @@ router.post(
 	requireUser,
 	validateResource(deployProjectSchema),
 	handleAsync(deployProjectHandler)
+)
+
+router.delete(
+	'/projects/deploy',
+	requireUser,
+	handleAsync(deleteUndeployedProjectHandler)
 )
 
 const postProjectMultiPartFormParams: ParseMultiPartFormParams = {
