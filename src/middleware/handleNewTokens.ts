@@ -42,7 +42,7 @@ const handleNewTokens =
 		} = reIssue
 
 		// Compare request's and session's user agent
-		const reqAgent = getUserAgent(req.headers['user-agent'])
+		/* const reqAgent = getUserAgent(req.headers['user-agent'])
 		const sessionAgent = session.userAgent
 
 		const agentKeys = ['browser', 'os', 'device']
@@ -66,10 +66,10 @@ const handleNewTokens =
 			res.clearCookie(refreshTokenCookie, cookieDefaults)
 
 			return (res.locals.revokedSession = true)
-		}
+		} */
 
 		// Compare request's session's geolocation
-		const reqLocation = await getReqLocation(req)
+		/* const reqLocation = await getReqLocation(req)
 
 		const locationKeys = ['countryCode', 'city']
 		if (
@@ -88,7 +88,7 @@ const handleNewTokens =
 			res.clearCookie(refreshTokenCookie, cookieDefaults)
 
 			return (res.locals.revokedSession = true)
-		}
+		} */
 
 		// Set token cookies
 		res.cookie(accessTokenCookie, newAccessToken, {
