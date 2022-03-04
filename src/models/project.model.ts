@@ -255,9 +255,9 @@ undeployedProjectSchema.pre('save', async function (next) {
 		}
 
 		// TODO
-		const projectSlug = await ProjectModel.find({ slug })
+		const projects = await ProjectModel.find({ slug })
 
-		if (projectSlug) {
+		if (projects?.length > 0) {
 			const error = {
 				code: 'invalid value',
 				message: 'That name is taken - Please use another one',
