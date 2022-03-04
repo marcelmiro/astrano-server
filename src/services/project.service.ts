@@ -32,7 +32,6 @@ export async function createProject(input: UndeployedProjectInput) {
 }
 
 export async function findProjects(
-<<<<<<< HEAD
 	query?: FilterQuery<ProjectDocument>,
 	sort?: Record<string, 1 | -1>
 ): Promise<FlatProject[]> {
@@ -47,32 +46,12 @@ export async function findProjects(
 					{ $project: { _id: 0, username: 1, logoUri: 1 } },
 				],
 			},
-=======
-	query: FilterQuery<ProjectDocument> = {},
-	sort?: Record<string, 1 | -1>
-): Promise<FlatProject[]> {
-	const pipeline: PipelineStage[] = []
-
-	if (query) pipeline.push({ $match: query })
-
-	pipeline.push({
-		$lookup: {
-			from: 'users',
-			as: 'user',
-			let: { user: '$user' },
-			pipeline: [
-				{ $match: { $expr: { $eq: ['$$user', '$_id'] } } },
-				{ $project: { _id: 0, username: 1, logoUrl: 1 } },
-			],
->>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 		},
-	})
-
-	pipeline.push({
-		$set: {
-			user: { $arrayElemAt: ['$user', 0] },
+		{
+			$set: {
+				user: { $arrayElemAt: ['$user', 0] },
+			},
 		},
-<<<<<<< HEAD
 	]
 
 	if (query) aggregation.unshift({ $match: query })
@@ -81,13 +60,6 @@ export async function findProjects(
 
 	return await ProjectModel.aggregate(aggregation)
 }
-=======
-	})
-
-	if (sort) pipeline.push({ $sort: sort })
-
-	const projects = await ProjectModel.aggregate(pipeline)
->>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 
 export async function findUndeployedProject(
 	query: FilterQuery<UndeployedProjectDocument>

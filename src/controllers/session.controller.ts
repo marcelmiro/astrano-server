@@ -44,7 +44,6 @@ export const createSessionHandler: RequestHandler<
 		return res.status(201).json(returnedUser)
 	}
 
-<<<<<<< HEAD
 	// Validate login credentials
 	const { email, password } = req.body
 	const user = await validatePassword(email, password)
@@ -104,8 +103,6 @@ export const createSessionHandler: RequestHandler<
 	return res.status(201).json(returnedUser)
 }
 
-=======
->>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 export const getSessionsHandler: RequestHandler = async (_req, res) => {
 	const userId = res.locals.user.id
 

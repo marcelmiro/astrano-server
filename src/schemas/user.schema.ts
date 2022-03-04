@@ -17,25 +17,10 @@ export const createUserSchema = object({
 				'Sorry, only alphanumeric characters and symbols (._) are allowed'
 			)
 			.refine((value) => !bannedUsernames.includes(value.toLowerCase()), {
-<<<<<<< HEAD
 				message:
 					'That username cannot be used - Please use another one',
 				path: ['username'],
 			}),
-=======
-				message: 'That username cannot be used - Please use another one',
-				path: ['username'],
-			}),
-		name: string({
-			required_error: 'Full name is required',
-		})
-			.min(2, 'Full name is too short - Should be 2 characters minimum')
-			.max(32, 'Full name is too long - Should be 32 characters maximum')
-			.regex(
-				/^(?!.*[  ]{2})[a-zA-Z0-9 ]+$/g,
-				'Sorry, only letters and single spaces are allowed'
-			),
->>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 		password: string({ required_error: 'Password is required' })
 			.min(8, 'Password is too short - Should be 8 characters minimum')
 			.max(100, 'Password is too long - Should be 100 characters maximum')
