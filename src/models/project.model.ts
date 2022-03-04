@@ -8,10 +8,19 @@ interface IToken {
 	name: string
 	symbol: string
 	totalSupply: string
+<<<<<<< HEAD
 	lockStartIn: string
 	lockDuration: string
 	tokenAddress: string
 	vestingWalletAddress: string
+=======
+	decimals: number
+	distributionTax: number
+	contractAddress: string
+	blockchainExplorerUrl: string
+	marketUrl?: string
+	price: string
+>>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 }
 
 interface ICrowdsale {
@@ -96,6 +105,7 @@ export interface DeployProjectBody {
 
 const projectSchema = new Schema(
 	{
+<<<<<<< HEAD
 		user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 		name: { type: String, required: true, unique: true, trim: true },
 		slug: { type: String, required: true, unique: true },
@@ -148,6 +158,29 @@ const projectSchema = new Schema(
 			default: 'crowdsale',
 		},
 		likes: { type: Number, default: 0 },
+=======
+		name: { type: String, required: true },
+		symbol: { type: String, required: true, uppercase: true },
+		totalSupply: { type: String, required: true },
+		decimals: { type: Number, required: true },
+		distributionTax: { type: Number, default: 0 },
+		contractAddress: { type: String, required: true /* , unique: true */ }, // TODO: Remove unique comment
+		blockchainExplorerUrl: {
+			type: String,
+			required: true /* , unique: true */, // TODO: Remove unique comment
+		},
+		marketUrl: { type: String /* , unique: true */ }, // TODO: Remove unique comment
+		price: { type: String, default: '0' },
+	},
+	{ _id: false, timestamps: false }
+)
+
+const statusSchema = new Schema(
+	{
+		name: { type: String, enum: ['live', 'ico'], required: true },
+		startsAt: { type: Date },
+		endsAt: { type: Date },
+>>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 	},
 	{ timestamps: true }
 )
@@ -162,6 +195,7 @@ const undeployedProjectSchema = new Schema(
 		},
 		name: { type: String, required: true, unique: true, trim: true },
 		slug: { type: String, unique: true },
+<<<<<<< HEAD
 		logoUri: { type: String, required: true },
 		tags: [{ type: String, required: true, trim: true }],
 		description: {
@@ -198,11 +232,26 @@ const undeployedProjectSchema = new Schema(
 			lockDuration: { type: String, required: true },
 		},
 		expiresAt: { type: Date, expires: 0 },
+=======
+		logoUrl: { type: String, required: true },
+		tags: [{ type: String, required: true }],
+		description: { blocks: [{ type: Object }], entityMap: { type: Object } },
+		relationship: { type: String, required: true },
+		token: { type: tokenSchema, required: true },
+		status: { type: statusSchema, required: true },
+		website: { type: String },
+		socialUrls: { type: Array },
+		likes: { type: Number, default: 0 },
+>>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 	},
 	{ timestamps: true }
 )
 
+<<<<<<< HEAD
 const bannedSlugs = ['new', 'deploy']
+=======
+const bannedSlugs = ['new']
+>>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 
 projectSchema.pre('save', function (next) {
 	const project = this as ProjectDocument
@@ -229,6 +278,7 @@ projectSchema.pre('save', function (next) {
 		project.slug = slug
 	}
 
+<<<<<<< HEAD
 	next()
 })
 
@@ -269,6 +319,8 @@ undeployedProjectSchema.pre('save', async function (next) {
 		project.slug = slug
 	}
 
+=======
+>>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 	next()
 })
 

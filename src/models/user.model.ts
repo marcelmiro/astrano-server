@@ -6,6 +6,10 @@ import { verificationTokenTtl } from '../config/auth.config'
 export interface UserInput {
 	email: string
 	username: string
+<<<<<<< HEAD
+=======
+	name: string
+>>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 	password: string
 	passwordConfirmation: string
 }
@@ -14,7 +18,11 @@ export interface UserDocument
 	extends Omit<UserInput, 'passwordConfirmation'>,
 		Document {
 	confirmed: boolean
+<<<<<<< HEAD
 	logoUri?: string
+=======
+	logoUrl?: string
+>>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 	likedProjects: Schema.Types.ObjectId[]
 	expiresAt?: Date
 	createdAt: Date
@@ -42,9 +50,16 @@ const userSchema = new Schema(
 			trim: true,
 			lowercase: true,
 		},
+<<<<<<< HEAD
 		password: { type: String, required: true, trim: true },
 		confirmed: { type: Boolean, default: false },
 		logoUri: { type: String, trim: true },
+=======
+		name: { type: String, required: true, trim: true },
+		password: { type: String, required: true, trim: true },
+		confirmed: { type: Boolean, default: false },
+		logoUrl: { type: String, trim: true },
+>>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 		likedProjects: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
 	},
 	{ timestamps: true }
@@ -75,6 +90,10 @@ userSchema.methods.comparePassword = async function (
 	candidatePassword: string
 ) {
 	const user = this as UserDocument
+<<<<<<< HEAD
+=======
+
+>>>>>>> e990402a2c5a0ea5147943a1892667335d3a92b9
 	try {
 		return await compare(candidatePassword, user.password)
 	} catch (e) {
