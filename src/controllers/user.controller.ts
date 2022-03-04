@@ -9,13 +9,16 @@ import { deleteSessions } from '../services/session.service'
 import { validationError } from '../utils/error'
 import { findLikedProjects } from '../services/project.service'
 
-export const createUserHandler: RequestHandler<unknown, unknown, UserInput> =
-	async (req, res) => {
-		const user = await createUser(req.body)
-		return res.status(201).json(user)
-	}
+export const createUserHandler: RequestHandler<
+	unknown,
+	unknown,
+	UserInput
+> = async (req, res) => {
+	const user = await createUser(req.body)
+	return res.status(201).json(user)
+}
 
-export const getCurrentUserHandler: RequestHandler = async (req, res) => {
+export const getCurrentUserHandler: RequestHandler = async (_req, res) => {
 	const userId = res.locals.user.id
 
 	const user = await findUser({ _id: userId })
@@ -30,8 +33,8 @@ export const getCurrentUserHandler: RequestHandler = async (req, res) => {
 		return res.status(401).json({ message: 'An unexpected error occurred' })
 	}
 
-	const { email, username, name, logoUrl, likedProjects } = user
-	const returnedUser = { email, username, name, logoUrl, likedProjects }
+	const { email, username, logoUri, likedProjects } = user
+	const returnedUser = { email, username, logoUri, likedProjects }
 	return res.status(200).json(returnedUser)
 }
 
@@ -88,19 +91,20 @@ export const getUserQueryHandler: RequestHandler<
 	const user = await findUser(restQuery)
 	if (!user) return res.status(404).json({ message: 'User not found' })
 
-	const { username, name, logoUrl } = user
-	const returnedUser = { username, name, logoUrl }
+	const { username, logoUri } = user
+	const returnedUser = { username, logoUri }
 	return res.status(200).json(returnedUser)
 }
 
-export const getUserParamsHandler: RequestHandler<{ username: string }> =
-	async (req, res) => {
-		const user = await findUser(req.params)
-		if (!user) return res.status(404).json({ message: 'User not found' })
-		const { username, name, logoUrl } = user
-		const returnedUser = { username, name, logoUrl }
-		return res.status(200).json(returnedUser)
-	}
+export const getUserParamsHandler: RequestHandler<{
+	username: string
+}> = async (req, res) => {
+	const user = await findUser(req.params)
+	if (!user) return res.status(404).json({ message: 'User not found' })
+	const { username, logoUri } = user
+	const returnedUser = { username, logoUri }
+	return res.status(200).json(returnedUser)
+}
 
 export const verifyUserHandler: RequestHandler<{ token: string }> = async (
 	req,

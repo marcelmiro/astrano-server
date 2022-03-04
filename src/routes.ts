@@ -38,6 +38,7 @@ import {
 	getProjectsSchema,
 	getProjectSchema,
 	createProjectSchema,
+	deployProjectSchema,
 } from './schemas/project.schema'
 import {
 	createProjectHandler,
@@ -45,6 +46,8 @@ import {
 	getProjectHandler,
 	likeProjectHandler,
 	dislikeProjectHandler,
+	getUndeployedProjectHandler,
+	deployProjectHandler,
 } from './controllers/project.controller'
 import { ParseMultiPartFormParams } from './middleware/parseMultiPartForm'
 
@@ -119,16 +122,23 @@ router.get(
 )
 
 router.get(
-	'/projects/:slug',
-	validateResource(getProjectSchema),
-	handleAsync(getProjectHandler)
+	'/projects/deploy',
+	requireUser,
+	handleAsync(getUndeployedProjectHandler)
+)
+
+router.post(
+	'/projects/deploy',
+	requireUser,
+	validateResource(deployProjectSchema),
+	handleAsync(deployProjectHandler)
 )
 
 const postProjectMultiPartFormParams: ParseMultiPartFormParams = {
 	fileFormat: 'logo',
 	jsonField: 'data',
 	allowedTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
-	maxSize: 1024000,
+	maxSize: 1_024_000,
 }
 
 router.post(
@@ -137,6 +147,12 @@ router.post(
 	parseMultiPartForm(postProjectMultiPartFormParams),
 	validateResource(createProjectSchema),
 	handleAsync(createProjectHandler)
+)
+
+router.get(
+	'/projects/:slug',
+	validateResource(getProjectSchema),
+	handleAsync(getProjectHandler)
 )
 
 router.put(

@@ -35,7 +35,6 @@ export async function createUser(input: UserInput) {
 	const returnedUser = {
 		email: user.email,
 		username: user.username,
-		name: user.name,
 	}
 
 	return returnedUser
@@ -111,10 +110,10 @@ export async function verifyUser(token: string): Promise<boolean> {
 	}
 
 	// Generate and upload avatar and update user with logo URL
-	const logoUrl = await generateAndUploadAvatar()
+	const logoUri = await generateAndUploadAvatar()
 
 	// Update user to confirmed
-	await updateUser({ _id: decoded.id }, { confirmed: true, logoUrl })
+	await updateUser({ _id: decoded.id }, { confirmed: true, logoUri })
 
 	return true
 }

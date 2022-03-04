@@ -20,6 +20,9 @@ type ShallowCompare = (
 ) => boolean
 
 export const shallowCompare: ShallowCompare = (object1, object2, keys) => {
+    if(!object1 && !object2) return true
+    if (!object1 || !object2) return false
+
     if (!keys) {
         const keys1 = Object.keys(object1)
         const keys2 = Object.keys(object2)

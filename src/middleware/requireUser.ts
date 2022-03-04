@@ -3,7 +3,7 @@ import { RequestHandler } from 'express'
 import csrf from './csrf'
 import deserializeUser from './deserializeUser'
 
-const requireUser: RequestHandler = async (req, res, next) => {
+const requireUser: RequestHandler = async (_req, res, next) => {
     // Check if user was forcefully logged out
     if (res.locals.revokedSession) {
         const message =

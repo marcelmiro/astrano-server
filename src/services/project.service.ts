@@ -2,71 +2,40 @@ import {
 	FlattenMaps,
 	LeanDocument,
 	FilterQuery,
-	SortValues,
 	UpdateQuery,
 	ObjectId,
+	PipelineStage,
 } from 'mongoose'
 
 import ProjectModel, {
-	ProjectInput,
+	UndeployedProjectInput,
 	ProjectDocument,
+	UndeployedProjectModel,
+	UndeployedProjectDocument,
+	DeployProjectBody,
 } from '../models/project.model'
 
 type Project = ProjectDocument & { _id: ObjectId }
 
 type FlatProject = FlattenMaps<LeanDocument<Project>>
 
-export async function createProject(input: ProjectInput) {
-	const {
-		tokenName,
-		tokenSymbol,
-		tokenSupply,
-		tokenDecimals,
-		tokenDistributionTax,
-		...inputData
-	} = input
+type FlatUndeployedProject = FlattenMaps<
+	LeanDocument<UndeployedProjectDocument>
+>
 
-	const projectData = {
-		...inputData,
-		token: {
-			name: tokenName,
-			symbol: tokenSymbol,
-			totalSupply: tokenSupply,
-			decimals: tokenDecimals,
-			distributionTax: tokenDistributionTax,
-			contractAddress: '0x3faf7e4fe6a1c30f78cc3a83755e33364bab77ed',
-			blockchainExplorerUrl:
-				'https://bscscan.com/token/0x3faf7e4fe6a1c30f78cc3a83755e33364bab77ed',
-		},
-		status: {
-			name: 'ico',
-			startsAt: '2021-12-16T18:15:45.158Z',
-		},
-		website: 'https://astrano.io',
-		socialUrls: [
-			{ name: 'instagram', url: 'https://www.instagram.com/astranocrypto/' },
-			{ name: 'linkedin', url: 'https://www.linkedin.com/company/astrano' },
-			{ name: 'twitter', url: 'https://twitter.com/astranocrypto' },
-			{ name: 'reddit', url: 'https://www.reddit.com/r/Astrano/' },
-		],
-	}
-
-	const _project = await ProjectModel.create(projectData)
+export async function createProject(input: UndeployedProjectInput) {
+	const _project = await UndeployedProjectModel.create(input)
 
 	const project = _project.toJSON()
 
-	/* eslint-disable @typescript-eslint/no-unused-vars */
-	const { relationship, ...returnedProject } = project
-
-	return returnedProject
+	return project
 }
 
 export async function findProjects(
-	query: FilterQuery<ProjectDocument> = {},
-	sort?: Record<string, SortValues>
+	query?: FilterQuery<ProjectDocument>,
+	sort?: Record<string, 1 | -1>
 ): Promise<FlatProject[]> {
-	const aggregation = [
-		query ? { $match: query } : undefined,
+	const aggregation: PipelineStage[] = [
 		{
 			$lookup: {
 				from: 'users',
@@ -74,7 +43,7 @@ export async function findProjects(
 				let: { user: '$user' },
 				pipeline: [
 					{ $match: { $expr: { $eq: ['$$user', '$_id'] } } },
-					{ $project: { _id: 0, username: 1, logoUrl: 1 } },
+					{ $project: { _id: 0, username: 1, logoUri: 1 } },
 				],
 			},
 		},
@@ -83,18 +52,26 @@ export async function findProjects(
 				user: { $arrayElemAt: ['$user', 0] },
 			},
 		},
-		sort ? { $sort: sort } : undefined,
 	]
 
-	const projects = await ProjectModel.aggregate(aggregation.filter(Boolean))
+	if (query) aggregation.unshift({ $match: query })
 
-	return projects || []
+	if (sort) aggregation.push({ $sort: sort })
+
+	return await ProjectModel.aggregate(aggregation)
+}
+
+export async function findUndeployedProject(
+	query: FilterQuery<UndeployedProjectDocument>
+): Promise<FlatUndeployedProject | null> {
+	const project = await UndeployedProjectModel.findOne(query)
+	return project ? project.toJSON() : null
 }
 
 export async function findLikedProjects(projects: ObjectId[]) {
 	return await ProjectModel.find(
 		{ _id: { $in: projects } },
-		{ name: 1, slug: 1, logoUrl: 1 }
+		{ name: 1, slug: 1, logoUri: 1 }
 	)
 }
 
@@ -103,4 +80,31 @@ export async function updateProject(
 	update: UpdateQuery<Project>
 ) {
 	return await ProjectModel.updateOne(query, update)
+}
+
+export async function deployProject({
+	userId,
+	tokenAddress,
+	crowdsaleAddress,
+	vestingWalletAddress,
+}: { userId: string } & DeployProjectBody): Promise<FlatProject | undefined> {
+	const undeployedProject = await findUndeployedProject({ user: userId })
+	if (!undeployedProject) return
+
+	const projectInput = {
+		...undeployedProject,
+		token: {
+			...undeployedProject.token,
+			tokenAddress,
+			vestingWalletAddress,
+		},
+		crowdsale: {
+			...undeployedProject.crowdsale,
+			crowdsaleAddress,
+		},
+	}
+
+	const project = await ProjectModel.create(projectInput)
+	await UndeployedProjectModel.deleteOne({ _id: undeployedProject._id })
+	return project.toJSON()
 }

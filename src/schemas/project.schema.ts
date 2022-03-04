@@ -1,5 +1,5 @@
-import { object, string, array, number } from 'zod'
-import Big from 'big.js'
+import { object, string, array } from 'zod'
+// import Big from 'big.js'
 
 export const getProjectsSchema = object({
 	query: object({
@@ -16,8 +16,14 @@ export const getProjectSchema = object({
 export const createProjectSchema = object({
 	body: object({
 		name: string({ required_error: 'Project name is required' })
-			.min(3, 'Project name is too short - Should be 3 characters minimum')
-			.max(42, 'Project name is too long - Should be 42 characters maximum')
+			.min(
+				3,
+				'Project name is too short - Should be 3 characters minimum'
+			)
+			.max(
+				42,
+				'Project name is too long - Should be 42 characters maximum'
+			)
 			.regex(
 				/^[a-zA-Z0-9 !@#$%&()?\-_.,]+$/,
 				'Project name should only contain alphanumeric characters, spaces and symbols (!@#$%&()?-_.,)'
@@ -29,13 +35,6 @@ export const createProjectSchema = object({
 		)
 			.nonempty({ message: 'Project must have at least 1 tag' })
 			.max(10, 'Project must have at most 10 tags'),
-		summary: string()
-			.max(160, 'Summary is too long - Should be 160 characters maximum')
-			.refine((value) => !value || value.length > 10, {
-				message: 'Summary is too short - Should be 10 characters minimum',
-				path: ['summary'],
-			})
-			.optional(),
 		description: object({
 			blocks: array(
 				object({
@@ -44,24 +43,48 @@ export const createProjectSchema = object({
 			).nonempty('Project description is required'),
 			entityMap: object({}),
 		}),
-		relationship: string({
-			required_error: 'Project relationship is required',
-		})
-			.min(20, 'Relationship is too short - Should be 20 characters minimum')
-			.max(400, 'Relationship is too long - Should be 400 characters maximum'),
-		tokenName: string({ required_error: 'Token name is required' })
+		/* website: string({ required_error: 'Website is required' }).url(
+			'Website is not a valid URL'
+		),
+		socialUrls: array(
+			object({
+				name: string({
+					required_error: 'At least 1 social name is empty',
+				})
+					.min(2, 'Social names must have at least 2 characters')
+					.max(
+						16,
+						'Social names must not exceed 16 characters length'
+					),
+				url: string({
+					required_error: 'At least 1 social URL is empty',
+				}).url('At least 1 social URL is not a valid URL'),
+			})
+		).max(5, 'Project must have at most 5 social URLs'), */
+		/* tokenName: string({ required_error: 'Token name is required' })
 			.min(3, 'Token name is too short - Should be 3 characters minimum')
-			.max(42, 'Token name is too long - Should be 42 characters maximum'),
+			.max(
+				42,
+				'Token name is too long - Should be 42 characters maximum'
+			),
 		tokenSymbol: string({ required_error: 'Token symbol is required' })
-			.min(2, 'Token symbol is too short - Should be 2 characters minimum')
+			.min(
+				2,
+				'Token symbol is too short - Should be 2 characters minimum'
+			)
 			.max(5, 'Token symbol is too long - Should be 5 characters maximum')
 			.regex(
 				/^[a-zA-Z0-9]+$/,
 				'Token symbol should only contain alphanumeric characters'
 			),
-		tokenSupply: string({ required_error: 'Token supply is required' })
-			.min(3, 'Token supply must be at least 100')
-			.max(12, 'Token supply must not exceed 999,999,999,999 (999B)')
+		tokenTotalSupply: string({
+			required_error: 'Token total supply is required',
+		})
+			.min(3, 'Token total supply must be at least 100')
+			.max(
+				12,
+				'Token total supply must not exceed 999,999,999,999 (999B)'
+			)
 			.refine(
 				(value) => {
 					if (value.includes('.')) return false
@@ -73,25 +96,10 @@ export const createProjectSchema = object({
 					}
 				},
 				{
-					message: 'Token supply must be an integer',
-					path: ['tokenSupply'],
+					message: 'Token total supply must be an integer',
+					path: ['tokenTotalSupply'],
 				}
-			),
-		tokenDecimals: number({
-			required_error: 'Token decimals is required',
-			invalid_type_error: 'Token decimals must be a number',
-		})
-			.int('Token decimals must be an integer')
-			.gte(8, 'Token decimals must be at least 8')
-			.lte(21, 'Token decimals must not exceed 21'),
-		tokenDistributionTax: number({
-			required_error: 'Token distribution tax is required',
-			invalid_type_error: 'Token distribution tax must be a number',
-		})
-			.gte(0, 'Token distribution tax must be at least 0%')
-			.lte(5, 'Token distribution tax must not exceed 5%')
-			.optional(),
-		// website: string({ required_error: 'Website is required' }),
+			), */
 	}),
 	file: object({
 		fieldname: string().refine((value) => value === 'logo', {
@@ -108,4 +116,18 @@ export const createProjectSchema = object({
 			message: 'Logo is required',
 			path: ['logo'],
 		}),
+})
+
+export const deployProjectSchema = object({
+	body: object({
+		tokenAddress: string({
+			required_error: 'Token address is required',
+		}).length(42, 'Token address is not a valid address'),
+		crowdsaleAddress: string({
+			required_error: 'Crowdsale address is required',
+		}).length(42, 'Crowdsale address is not a valid address'),
+		vestingWalletAddress: string({
+			required_error: 'Vesting wallet address is required',
+		}).length(42, 'Vesting wallet address is not a valid address'),
+	}),
 })

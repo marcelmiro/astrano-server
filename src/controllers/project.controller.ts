@@ -1,10 +1,16 @@
 import { RequestHandler } from 'express'
-import { ObjectId, SortValues } from 'mongoose'
+import { ObjectId } from 'mongoose'
 
-import { ProjectInput } from '../models/project.model'
+import {
+	DeployProjectBody,
+	ProjectInput,
+	UndeployedProjectInput,
+} from '../models/project.model'
 import {
 	createProject,
+	deployProject,
 	findProjects,
+	findUndeployedProject,
 	updateProject,
 } from '../services/project.service'
 import { findUser, updateUser } from '../services/user.service'
@@ -22,7 +28,7 @@ export const createProjectHandler: RequestHandler<
 		.map(({ text }) => text)
 		.join('').length
 
-	if (descriptionLength < 200)
+	if (descriptionLength < 20)
 		return validationError({
 			code: 'too_small',
 			message:
@@ -47,12 +53,61 @@ export const createProjectHandler: RequestHandler<
 		resolutions: [128],
 	}
 
-	const logoUrl = await uploadImage(uploadLogoParams)
+	const logoUri = await uploadImage(uploadLogoParams)
 
 	// Set data object and upload project
+	const {
+		tokenName,
+		tokenSymbol,
+		tokenTotalSupply,
+		tokenLockStartIn,
+		tokenLockDuration,
+		crowdsaleRate,
+		crowdsaleCap,
+		crowdsaleIndividualCap,
+		crowdsaleMinPurchaseAmount,
+		crowdsaleGoal,
+		crowdsaleOpeningTime,
+		crowdsaleClosingTime,
+		liquidityPercentage,
+		liquidityRate,
+		liquidityLockStartIn,
+		liquidityLockDuration,
+		...restBody
+	} = req.body
+
 	const user = res.locals.user.id
-	const projectData = { ...req.body, user, logoUrl }
-	const project = await createProject(projectData)
+	const expiresAt = new Date(Date.now() + 86400 * 1000) // 24h
+	const input: UndeployedProjectInput = {
+		...restBody,
+		user,
+		logoUri,
+		expiresAt,
+		token: {
+			name: tokenName,
+			symbol: tokenSymbol,
+			totalSupply: tokenTotalSupply,
+			lockStartIn: tokenLockStartIn,
+			lockDuration: tokenLockDuration,
+		},
+		crowdsale: {
+			rate: crowdsaleRate,
+			cap: crowdsaleCap,
+			individualCap: crowdsaleIndividualCap,
+			minPurchaseAmount: crowdsaleMinPurchaseAmount,
+			goal: crowdsaleGoal,
+			openingTime: crowdsaleOpeningTime,
+			closingTime: crowdsaleClosingTime,
+		},
+		liquidity: {
+			percentage: liquidityPercentage,
+			rate: liquidityRate,
+			lockStartIn: liquidityLockStartIn,
+			lockDuration: liquidityLockDuration,
+		},
+	}
+
+	const project = await createProject(input)
 
 	return res.status(201).json(project)
 }
@@ -63,7 +118,7 @@ export const getProjectsHandler: RequestHandler<
 	unknown,
 	{ sort: string }
 > = async (req, res) => {
-	let sort: Record<string, SortValues> = {}
+	let sort: Record<string, 1 | -1> = {}
 
 	if (req.query.sort === 'best') sort = { likes: -1, createdAt: -1 }
 	else sort = { createdAt: -1, likes: -1 } // Default sort (created date then likes)
@@ -79,10 +134,28 @@ export const getProjectHandler: RequestHandler<{ slug: string }> = async (
 ) => {
 	const project = (await findProjects(req.params))[0]
 	if (!project) return res.status(404).json({ message: 'Project not found' })
+	return res.status(200).json(project)
+}
 
-	/* eslint-disable @typescript-eslint/no-unused-vars */
-	const { relationship, ...returnedProject } = project
-	return res.status(200).json(returnedProject)
+export const getUndeployedProjectHandler: RequestHandler = async (
+	_req,
+	res
+) => {
+	const userId = res.locals.user.id
+	const project = await findUndeployedProject({ user: userId })
+	if (!project) return res.status(404).json({ message: 'Project not found' })
+	return res.status(200).json(project)
+}
+
+export const deployProjectHandler: RequestHandler<
+	unknown,
+	unknown,
+	DeployProjectBody
+> = async (req, res) => {
+	const userId = res.locals.user.id
+	const project = await deployProject({ userId, ...req.body })
+	if (!project) return res.status(404).json({ message: 'Project not found' })
+	return res.status(200).json(project)
 }
 
 export const likeProjectHandler: RequestHandler<{ slug: string }> = async (
@@ -105,9 +178,15 @@ export const likeProjectHandler: RequestHandler<{ slug: string }> = async (
 
 	try {
 		await updateProject({ _id: project._id }, { $inc: { likes: 1 } })
-		await updateUser({ _id: userId }, { $push: { likedProjects: project._id } })
+		await updateUser(
+			{ _id: userId },
+			{ $push: { likedProjects: project._id } }
+		)
 	} catch (e) {
-		await updateProject({ _id: project._id }, { likes: project.likes }).catch(
+		await updateProject(
+			{ _id: project._id },
+			{ likes: project.likes }
+		).catch(
 			/* eslint-disable @typescript-eslint/no-empty-function */
 			() => {}
 		)
@@ -134,9 +213,15 @@ export const dislikeProjectHandler: RequestHandler = async (req, res) => {
 
 	try {
 		await updateProject({ _id: project._id }, { $inc: { likes: -1 } })
-		await updateUser({ _id: userId }, { $pull: { likedProjects: project._id } })
+		await updateUser(
+			{ _id: userId },
+			{ $pull: { likedProjects: project._id } }
+		)
 	} catch (e) {
-		await updateProject({ _id: project._id }, { likes: project.likes }).catch(
+		await updateProject(
+			{ _id: project._id },
+			{ likes: project.likes }
+		).catch(
 			/* eslint-disable @typescript-eslint/no-empty-function */
 			() => {}
 		)
