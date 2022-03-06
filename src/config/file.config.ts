@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import S3 from 'aws-sdk/clients/s3'
 import { readdir, unlink } from 'fs/promises'
 
@@ -10,26 +9,23 @@ export const tempDir = _tempDir?.replace(/^\/*/, '').replace(/\/*$/, '/')
 const _maxSize = process.env.FILE_MAX_SIZE
 export const maxSize = !!_maxSize && parseInt(_maxSize)
 
-// Get S3 config from file URI
-const fileUri = process.env.FILE_URI
-if (!fileUri) throw new Error('FILE_URI environmental variable not found')
+// Get S3 config from env variables
+export const region = process.env.AWS_REGION as string
+if (!region) throw new Error('AWS_REGION environmental variable not found')
+const creds = process.env.AWS_CREDS as string
+if (!creds) throw new Error('AWS_CREDS environmental variable not found')
+export const bucketName = process.env.FILE_BUCKET_NAME as string
+if (!bucketName)
+	throw new Error('FILE_BUCKET_NAME environmental variable not found')
 
-let data = fileUri.split('://')
-export const region = data[0]
-data = data[1].split('@')
-export const bucketName = data[0]
-data = data[1].split(':')
-export const accessKey = data[0]
-export const secretKey = data[1]
+const splitCreds = creds.split(':')
+const accessKeyId = splitCreds[0]
+const secretAccessKey = splitCreds[1]
 
-if (!region || !bucketName || !accessKey || !secretKey)
-	throw new Error('FILE_URI environmental variable incorrect format')
+if (!accessKeyId || !secretAccessKey)
+	throw new Error('AWS_CREDS environmental variable incorrect format')
 
-const s3 = new S3({
-	region,
-	accessKeyId: accessKey,
-	secretAccessKey: secretKey,
-})
+const s3 = new S3({ region, accessKeyId, secretAccessKey })
 
 async function cleanTempDir() {
 	if (!tempDir) return

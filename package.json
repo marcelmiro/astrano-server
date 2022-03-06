@@ -16,6 +16,7 @@
         "dependencies": {
                 "@dicebear/avatars": "^4.10.2",
                 "@dicebear/avatars-identicon-sprites": "^4.10.2",
+                "@sendgrid/mail": "^7.6.1",
                 "aws-sdk": "^2.1086.0",
                 "axios": "^0.26.0",
                 "bcrypt": "^5.0.1",
