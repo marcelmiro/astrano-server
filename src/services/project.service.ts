@@ -95,8 +95,12 @@ export async function deployProject({
 	crowdsaleAddress,
 	vestingWalletAddress,
 }: { userId: string } & DeployProjectBody): Promise<FlatProject | undefined> {
-	const undeployedProject = await findUndeployedProject({ user: userId })
-	if (!undeployedProject) return
+	const _undeployedProject = await findUndeployedProject({ user: userId })
+	if (!_undeployedProject) return
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { createdAt, updatedAt, expiresAt, ...undeployedProject } =
+		_undeployedProject
 
 	const projectInput = {
 		...undeployedProject,
